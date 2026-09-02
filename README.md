@@ -16,9 +16,12 @@ FPL_ENTRY_ID=3944035
 AI_PROVIDER=openai
 OPENAI_API_KEY=
 OPENAI_MODEL=gpt-4o-mini
+AI_TIMEOUT_MS=60000
 ```
 
-AI calls run only on the server via `GET /api/report` after you click **Generate Report**. If the key is missing, invalid, or the model returns invalid JSON, the app shows a deterministic fallback. The engine still decides XI, captain, and transfers.
+AI calls run only on the server via `GET /api/report` after you click **Generate Report**. Generation usually takes 30–60 seconds. If the key is missing, invalid, or the request times out, the app shows a deterministic fallback. The engine still decides XI, captain, and transfers.
+
+Restart `npm run dev` after changing `.env.local`.
 
 ## Run
 

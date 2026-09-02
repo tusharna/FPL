@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createFallbackReport } from "../lib/ai/fallback";
 import { toAIReportInput } from "../lib/ai/input";
 import { generateGameweekReport } from "../lib/ai/report";
-import { lockReportToEngine, validateReport } from "../lib/ai/validate";
+import { lockReportToEngine, normalizeAIReport, validateReport } from "../lib/ai/validate";
 import { selectBestXi } from "../lib/analysis/lineup";
 import { selectCaptaincy } from "../lib/analysis/captain";
 import { riskLevelFromScores } from "../lib/analysis/risk";
@@ -162,6 +162,37 @@ describe("validation", () => {
     report.transfer.action = "TRANSFER";
     const result = validateReport(report, input);
     expect(result.ok).toBe(false);
+  });
+
+  it("accepts player objects returned by the model and normalizes them to names", () => {
+    const analysis = mockAnalysis();
+    const input = toAIReportInput(analysis, analysis.recommendedXI, analysis.benchOrder);
+    const report = validReport(analysis);
+    const change = report.lineupChanges.changes[0];
+    const risk = report.risks[0];
+    const malformed = {
+      ...report,
+      captain: { ...report.captain, player: { name: report.captain.player } },
+      lineupChanges: {
+        ...report.lineupChanges,
+        changes: [
+          {
+            ...change,
+            playerIn: { name: change.playerIn },
+            playerOut: { name: change.playerOut },
+          },
+        ],
+      },
+      risks: [{ ...risk, player: { name: risk.player } }],
+    };
+    const result = validateReport(malformed, input);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.report.captain.player).toBe(report.captain.player);
+      expect(result.report.lineupChanges.changes[0]?.playerIn).toBe(change.playerIn);
+      expect(result.report.risks[0]?.player).toBe(risk.player);
+    }
+    expect(normalizeAIReport(malformed)).toBeTruthy();
   });
 });
 

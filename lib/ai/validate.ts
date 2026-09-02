@@ -13,6 +13,68 @@ function namesMatch(left: string, right: string): boolean {
   return normalizeName(left) === normalizeName(right);
 }
 
+function playerName(value: unknown): unknown {
+  if (typeof value === "string") {
+    return value;
+  }
+  if (value && typeof value === "object" && "name" in value) {
+    const name = (value as { name?: unknown }).name;
+    if (typeof name === "string") {
+      return name;
+    }
+  }
+  return value;
+}
+
+export function normalizeAIReport(value: unknown): unknown {
+  if (!value || typeof value !== "object") {
+    return value;
+  }
+
+  const report = { ...(value as Record<string, unknown>) };
+
+  if (report.captain && typeof report.captain === "object") {
+    const captain = { ...(report.captain as Record<string, unknown>) };
+    captain.player = playerName(captain.player);
+    report.captain = captain;
+  }
+
+  if (report.viceCaptain && typeof report.viceCaptain === "object") {
+    const viceCaptain = { ...(report.viceCaptain as Record<string, unknown>) };
+    viceCaptain.player = playerName(viceCaptain.player);
+    report.viceCaptain = viceCaptain;
+  }
+
+  if (report.lineupChanges && typeof report.lineupChanges === "object") {
+    const lineupChanges = { ...(report.lineupChanges as Record<string, unknown>) };
+    if (Array.isArray(lineupChanges.changes)) {
+      lineupChanges.changes = lineupChanges.changes.map((change) => {
+        if (!change || typeof change !== "object") {
+          return change;
+        }
+        const normalized = { ...(change as Record<string, unknown>) };
+        normalized.playerIn = playerName(normalized.playerIn);
+        normalized.playerOut = playerName(normalized.playerOut);
+        return normalized;
+      });
+    }
+    report.lineupChanges = lineupChanges;
+  }
+
+  if (Array.isArray(report.risks)) {
+    report.risks = report.risks.map((risk) => {
+      if (!risk || typeof risk !== "object") {
+        return risk;
+      }
+      const normalized = { ...(risk as Record<string, unknown>) };
+      normalized.player = playerName(normalized.player);
+      return normalized;
+    });
+  }
+
+  return report;
+}
+
 function allowedPlayerNames(input: AIReportInput): Set<string> {
   const names = [
     ...input.currentTeam.startingXI,
@@ -31,7 +93,7 @@ export function validateReport(
   value: unknown,
   input: AIReportInput,
 ): ValidationResult {
-  const parsed = aiReportSchema.safeParse(value);
+  const parsed = aiReportSchema.safeParse(normalizeAIReport(value));
   if (!parsed.success) {
     return {
       ok: false,

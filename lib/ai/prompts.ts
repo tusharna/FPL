@@ -13,6 +13,7 @@ export function buildSystemPrompt(): string {
     "Use language such as strongest option, best profile, higher upside, lower risk, worth monitoring, the model prefers, the data suggests.",
     "Avoid certainty such as definitely going to score, guaranteed points, or will score.",
     "Return a single JSON object with keys: title, executiveSummary, recommendedXI {formation, explanation}, captain {player, explanation, confidence}, viceCaptain {player, explanation}, lineupChanges {summary, changes[{playerIn, playerOut, explanation}]}, transfer {action, explanation}, bench {explanation}, risks [{player, risk, explanation}], shortTerm, mediumTerm, finalVerdict.",
+    "playerIn, playerOut, captain.player, viceCaptain.player, and risks[].player must be player name strings, never objects.",
     "formation, captain.player, viceCaptain.player, and transfer.action must match the input exactly.",
     "captain.confidence must be LOW, MEDIUM, or HIGH and should match the supplied captain.confidence.",
   ].join("\n");

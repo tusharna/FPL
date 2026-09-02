@@ -1,7 +1,7 @@
 import { buildCorrectionPrompt, buildSystemPrompt, buildUserPrompt } from "./prompts";
 import type { AIProvider, AIReport, AIReportInput } from "./types";
 
-const DEFAULT_TIMEOUT_MS = 20_000;
+const DEFAULT_TIMEOUT_MS = 60_000;
 const DEFAULT_MODEL = "gpt-4o-mini";
 
 export class AIProviderError extends Error {

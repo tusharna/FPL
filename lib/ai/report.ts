@@ -9,7 +9,8 @@ export async function generateGameweekReport(
   analysis: GameweekAnalysis,
   provider?: AIProvider,
 ): Promise<ReportResult> {
-  const fallbackNotice = "AI unavailable — showing deterministic report";
+  const fallbackNotice =
+    "AI unavailable — showing deterministic report. Check your API key and try again; generation can take up to a minute.";
 
   if (!provider && !hasAICredentials()) {
     return {

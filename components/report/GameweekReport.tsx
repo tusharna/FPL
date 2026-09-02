@@ -60,7 +60,7 @@ export function GameweekReport() {
           disabled={loading}
           className="rounded-full bg-emerald-400 px-5 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {loading ? "Generating…" : "Generate Report"}
+          {loading ? "Generating… (up to 1 min)" : "Generate Report"}
         </button>
       </div>
 
