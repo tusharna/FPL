@@ -1,4 +1,6 @@
 import { Fixture } from "@/components/Fixture";
+import { Badge } from "@/components/ui/Badge";
+import { Panel } from "@/components/ui/Panel";
 import { formatPoints, formatPrice } from "@/lib/format";
 import type { SquadPlayer } from "@/lib/fpl/types";
 
@@ -6,59 +8,75 @@ type SquadProps = {
   startingXi: SquadPlayer[];
 };
 
+function Role({ player }: { player: SquadPlayer }) {
+  if (player.isCaptain) {
+    return <Badge tone="gold">⭐ Captain</Badge>;
+  }
+  if (player.isViceCaptain) {
+    return <Badge>Vice</Badge>;
+  }
+  return <span className="text-white/25">—</span>;
+}
+
 export function Squad({ startingXi }: SquadProps) {
   return (
-    <section className="overflow-x-auto rounded-2xl border border-white/10 bg-slate-900/70">
-      <div className="border-b border-white/10 px-4 py-3">
-        <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
-          Starting XI
-        </h2>
+    <Panel>
+      <div className="border-b border-white/10 px-5 py-4">
+        <h2 className="text-sm font-semibold tracking-tight text-white">Starting XI</h2>
+        <p className="mt-1 text-xs text-white/45">
+          Selected by multiplier &gt; 0 from live FPL picks
+        </p>
       </div>
-      <table className="min-w-full text-left text-sm">
-        <thead className="text-[11px] uppercase tracking-wider text-white/40">
-          <tr>
-            <th className="px-4 py-2 font-medium">Player</th>
-            <th className="px-4 py-2 font-medium">Position</th>
-            <th className="px-4 py-2 font-medium">Price</th>
-            <th className="px-4 py-2 font-medium">Form</th>
-            <th className="px-4 py-2 font-medium">GW Points</th>
-            <th className="px-4 py-2 font-medium">Expected Points</th>
-            <th className="px-4 py-2 font-medium">Role</th>
-            <th className="px-4 py-2 font-medium">Next fixture</th>
-          </tr>
-        </thead>
-        <tbody>
-          {startingXi.map((player) => (
-            <tr key={player.id} className="border-t border-white/5">
-              <td className="px-4 py-2.5 font-medium text-white">
-                {player.webName}
-                <span className="ml-2 text-xs font-normal text-white/40">
-                  {player.teamShortName}
-                </span>
-              </td>
-              <td className="px-4 py-2.5 text-white/70">{player.position}</td>
-              <td className="px-4 py-2.5 text-white/70">{formatPrice(player.price)}</td>
-              <td className="px-4 py-2.5 text-white/70">{formatPoints(player.form)}</td>
-              <td className="px-4 py-2.5 text-white/70">{player.eventPoints}</td>
-              <td className="px-4 py-2.5 text-white/70">
-                {formatPoints(player.expectedPointsNext)}
-              </td>
-              <td className="px-4 py-2.5">
-                {player.isCaptain ? (
-                  <span className="text-amber-300">Captain</span>
-                ) : player.isViceCaptain ? (
-                  <span className="text-slate-200">Vice</span>
-                ) : (
-                  <span className="text-white/30">—</span>
-                )}
-              </td>
-              <td className="px-4 py-2.5">
-                <Fixture fixture={player.nextFixture} />
-              </td>
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-left text-sm">
+          <thead className="text-[11px] uppercase tracking-wider text-white/40">
+            <tr>
+              <th className="px-5 py-3 font-medium">Player</th>
+              <th className="px-5 py-3 font-medium">Position</th>
+              <th className="px-5 py-3 font-medium">Price</th>
+              <th className="px-5 py-3 font-medium">Form</th>
+              <th className="px-5 py-3 font-medium">GW Points</th>
+              <th className="px-5 py-3 font-medium">Expected Points</th>
+              <th className="px-5 py-3 font-medium">Role</th>
+              <th className="px-5 py-3 font-medium">Next fixture</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </section>
+          </thead>
+          <tbody>
+            {startingXi.map((player) => (
+              <tr
+                key={player.id}
+                className="border-t border-white/6 transition hover:bg-white/[0.03]"
+              >
+                <td className="px-5 py-3.5">
+                  <div className="font-medium text-white">{player.webName}</div>
+                  <div className="text-xs text-white/40">{player.teamShortName}</div>
+                </td>
+                <td className="px-5 py-3.5">
+                  <Badge tone="mint">{player.position}</Badge>
+                </td>
+                <td className="px-5 py-3.5 tabular-nums text-white/75">
+                  {formatPrice(player.price)}
+                </td>
+                <td className="px-5 py-3.5 tabular-nums text-white/75">
+                  {formatPoints(player.form)}
+                </td>
+                <td className="px-5 py-3.5 tabular-nums font-medium text-white">
+                  {player.eventPoints}
+                </td>
+                <td className="px-5 py-3.5 tabular-nums text-white/75">
+                  {formatPoints(player.expectedPointsNext)}
+                </td>
+                <td className="px-5 py-3.5">
+                  <Role player={player} />
+                </td>
+                <td className="px-5 py-3.5">
+                  <Fixture fixture={player.nextFixture} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Panel>
   );
 }

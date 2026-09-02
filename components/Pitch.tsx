@@ -14,23 +14,25 @@ export function Pitch({ startingXi }: PitchProps) {
   })).filter((row) => row.players.length > 0);
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-emerald-900/40 bg-pitch">
-      <div className="flex flex-col justify-between gap-6 px-3 py-8 sm:px-6 sm:py-10">
-        {rows.map((row) => (
-          <div
-            key={row.position}
-            className="flex flex-wrap items-start justify-center gap-3 sm:gap-4"
-          >
-            {row.players.map((player) => (
-              <PlayerCard
-                key={player.id}
-                player={player}
-                compact
-                showFixture
-              />
-            ))}
-          </div>
-        ))}
+    <section className="relative overflow-hidden rounded-[1.75rem] border border-emerald-300/20 shadow-[0_30px_80px_rgba(5,46,22,0.55)]">
+      <div className="bg-pitch min-h-[34rem]">
+        <div className="relative z-10 flex min-h-[34rem] flex-col justify-between gap-5 px-2 py-8 sm:px-6 sm:py-10">
+          {rows.map((row) => (
+            <div
+              key={row.position}
+              className="flex flex-wrap items-start justify-center gap-2 sm:gap-4"
+            >
+              {row.players.map((player) => (
+                <PlayerCard
+                  key={player.id}
+                  player={player}
+                  compact
+                  showFixture
+                />
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

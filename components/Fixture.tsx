@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/Badge";
 import { formatFixture } from "@/lib/format";
 import type { UpcomingFixture } from "@/lib/fpl/types";
 
@@ -11,8 +12,8 @@ export function Fixture({ fixture }: FixtureProps) {
   }
 
   return (
-    <span className="font-medium text-emerald-200">
+    <Badge tone="mint">
       {formatFixture(fixture.eventId, fixture.opponentShortName, fixture.isHome)}
-    </span>
+    </Badge>
   );
 }
