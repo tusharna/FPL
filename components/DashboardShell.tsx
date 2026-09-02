@@ -1,19 +1,17 @@
-import { Analysis } from "@/components/Analysis";
+import type { ReactNode } from "react";
 import { Banknote, CalendarClock, Trophy, UserRound, Wallet } from "lucide-react";
-import { Bench } from "@/components/Bench";
-import { CaptainCard } from "@/components/CaptainCard";
-import { Pitch } from "@/components/Pitch";
-import { Squad } from "@/components/Squad";
+import { DashboardNav } from "@/components/DashboardNav";
 import { Badge } from "@/components/ui/Badge";
 import { StatCard } from "@/components/ui/StatCard";
 import { formatDeadline, formatPrice, formatRank } from "@/lib/format";
 import type { DashboardPayload } from "@/lib/fpl/dashboard-data";
 
-type DashboardProps = {
+type DashboardShellProps = {
   data: DashboardPayload;
+  children: ReactNode;
 };
 
-export function Dashboard({ data }: DashboardProps) {
+export function DashboardShell({ data, children }: DashboardShellProps) {
   const { manager, gameweek } = data;
 
   return (
@@ -40,17 +38,13 @@ export function Dashboard({ data }: DashboardProps) {
             </p>
           </div>
           <div className="max-w-sm rounded-2xl border border-emerald-300/15 bg-emerald-400/8 px-4 py-3 text-sm text-emerald-100/90">
-            Current squad from the FPL API, plus a deterministic recommendation engine below.
+            Squad, engine recommendations, and AI report — each in its own section below.
           </div>
         </div>
       </header>
 
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-        <StatCard
-          label="Team value"
-          value={formatPrice(manager.teamValue)}
-          icon={Wallet}
-        />
+        <StatCard label="Team value" value={formatPrice(manager.teamValue)} icon={Wallet} />
         <StatCard
           label="Bank"
           value={formatPrice(manager.bank)}
@@ -77,23 +71,9 @@ export function Dashboard({ data }: DashboardProps) {
         />
       </section>
 
-      <CaptainCard captain={data.captain} viceCaptain={data.viceCaptain} />
+      <DashboardNav />
 
-      <section className="space-y-3">
-        <div className="flex items-end justify-between px-1">
-          <div>
-            <h2 className="text-sm font-semibold text-white">Your team</h2>
-            <p className="mt-1 text-xs text-white/45">
-              Formation is generated from the selected XI
-            </p>
-          </div>
-        </div>
-        <Pitch startingXi={data.startingXi} />
-      </section>
-
-      <Bench bench={data.bench} />
-      <Squad startingXi={data.startingXi} />
-      <Analysis analysis={data.analysis} />
+      <main className="min-h-[24rem]">{children}</main>
     </div>
   );
 }

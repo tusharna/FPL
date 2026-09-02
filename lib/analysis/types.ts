@@ -1,6 +1,7 @@
 import type { Position } from "@/lib/fpl/types";
 
 export type RiskLevel = "LOW" | "MEDIUM" | "HIGH";
+export type Confidence = "LOW" | "MEDIUM" | "HIGH";
 
 export type PlayerAnalysis = {
   playerId: number;
@@ -37,6 +38,7 @@ export type RolePick = {
   player: PlayerAnalysis;
   score: number;
   reasons: string[];
+  confidence: Confidence;
 };
 
 export type LineupChange = {

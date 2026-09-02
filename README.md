@@ -1,6 +1,6 @@
-# FPL Report — Phase 1 + Phase 2
+# FPL Report — Phases 1–3
 
-Live Fantasy Premier League squad dashboard plus a deterministic decision engine. Phase 1 maps the 15-player squad from the public FPL API. Phase 2 scores players, legal formations, captaincy, bench order, and SAVE vs TRANSFER.
+Live Fantasy Premier League squad dashboard, a deterministic decision engine, and an optional AI explanation layer.
 
 ## Setup
 
@@ -13,7 +13,12 @@ cp .env.example .env.local
 
 ```env
 FPL_ENTRY_ID=3944035
+AI_PROVIDER=openai
+OPENAI_API_KEY=
+OPENAI_MODEL=gpt-4o-mini
 ```
+
+AI calls run only on the server via `GET /api/report` after you click **Generate Report**. If the key is missing, invalid, or the model returns invalid JSON, the app shows a deterministic fallback. The engine still decides XI, captain, and transfers.
 
 ## Run
 
@@ -21,7 +26,13 @@ FPL_ENTRY_ID=3944035
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) or `/dashboard`.
+Open [http://localhost:3000](http://localhost:3000) — you'll land on `/squad`.
+
+Sections:
+
+- `/squad` — live picks, pitch, bench, and table
+- `/analysis` — deterministic decision engine
+- `/report` — AI gameweek report (Generate Report button)
 
 ## Tests
 
@@ -31,6 +42,4 @@ npm test
 
 ## Scope
 
-This phase does **not** include AI, automatic transfers, a database, or authentication. Those belong in later phases.
-
-The app only uses public FPL endpoints. Do not store FPL cookies, bearer tokens, or login credentials.
+Do not store FPL cookies, bearer tokens, or login credentials. Phase 3 does not add a database, authentication, automatic transfers, or external news APIs.

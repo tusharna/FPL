@@ -1,6 +1,6 @@
 import { CAPTAIN_SCORE_WEIGHTS } from "./config";
 import { clamp01 } from "./risk";
-import type { PlayerAnalysis, RolePick } from "./types";
+import type { Confidence, PlayerAnalysis, RolePick } from "./types";
 
 export function captainScore(player: PlayerAnalysis): number {
   const w = CAPTAIN_SCORE_WEIGHTS;
@@ -36,6 +36,27 @@ export function captainReasons(player: PlayerAnalysis, score: number): string[] 
   return reasons;
 }
 
+export function captainConfidence(
+  captainValue: number,
+  viceValue: number,
+  availabilityRisk: number,
+): Confidence {
+  if (availabilityRisk >= 0.55) {
+    return "LOW";
+  }
+  if (availabilityRisk >= 0.28) {
+    return "MEDIUM";
+  }
+  const gap = captainValue - viceValue;
+  if (gap >= 0.08) {
+    return "HIGH";
+  }
+  if (gap >= 0.03) {
+    return "MEDIUM";
+  }
+  return "LOW";
+}
+
 export function selectCaptaincy(recommendedXi: PlayerAnalysis[]): {
   captain: RolePick;
   viceCaptain: RolePick;
@@ -60,6 +81,11 @@ export function selectCaptaincy(recommendedXi: PlayerAnalysis[]): {
       player: captainPlayer,
       score: captainValue,
       reasons: captainReasons(captainPlayer, captainValue),
+      confidence: captainConfidence(
+        captainValue,
+        viceValue,
+        captainPlayer.availabilityRisk,
+      ),
     },
     viceCaptain: {
       player: vicePlayer,
@@ -68,6 +94,11 @@ export function selectCaptaincy(recommendedXi: PlayerAnalysis[]): {
         `Second-best captain score (${viceValue.toFixed(2)}) in the recommended XI`,
         ...captainReasons(vicePlayer, viceValue).slice(1),
       ],
+      confidence: captainConfidence(
+        viceValue,
+        ranked[2] ? captainScore(ranked[2]) : 0,
+        vicePlayer.availabilityRisk,
+      ),
     },
   };
 }

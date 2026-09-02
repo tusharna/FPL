@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { analyzeGameweek } from "@/lib/analysis/team";
 import type { GameweekAnalysis } from "@/lib/analysis/types";
 import { getBootstrapStatic } from "./bootstrap";
@@ -20,7 +21,7 @@ export type DashboardPayload = DashboardData & {
   analysis: GameweekAnalysis;
 };
 
-export async function getDashboardData(
+export const getDashboardData = cache(async function getDashboardData(
   entryId = getEntryId(),
 ): Promise<DashboardPayload> {
   const [bootstrap, fixtures] = await Promise.all([
@@ -84,4 +85,4 @@ export async function getDashboardData(
     viceCaptain,
     analysis,
   };
-}
+});

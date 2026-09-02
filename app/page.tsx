@@ -1,9 +1,5 @@
-import { Dashboard } from "@/components/Dashboard";
-import { getDashboardData } from "@/lib/fpl/dashboard-data";
+import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
-export default async function HomePage() {
-  const data = await getDashboardData();
-  return <Dashboard data={data} />;
+export default function HomePage() {
+  redirect("/squad");
 }

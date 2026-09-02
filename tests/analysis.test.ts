@@ -116,6 +116,7 @@ describe("captaincy", () => {
     expect(captain.player.playerId).toBe(101);
     expect(viceCaptain.player.playerId).toBe(102);
     expect(captain.reasons.length).toBeGreaterThan(0);
+    expect(captain.confidence).toBe("HIGH");
   });
 });
 
