@@ -11,6 +11,10 @@ export type FplTeam = {
   id: number;
   name: string;
   short_name: string;
+  strength_attack_home?: number;
+  strength_attack_away?: number;
+  strength_defence_home?: number;
+  strength_defence_away?: number;
 };
 
 export type FplEvent = {
@@ -47,6 +51,8 @@ export type FplElement = {
   chance_of_playing_this_round: number | null;
   chance_of_playing_next_round: number | null;
   news: string;
+  status?: string;
+  penalties_order?: number | null;
 };
 
 export type FplBootstrapStatic = {
@@ -107,6 +113,8 @@ export type FplFixture = {
   team_a_score: number | null;
   finished: boolean;
   kickoff_time: string | null;
+  team_h_difficulty?: number;
+  team_a_difficulty?: number;
 };
 
 export type Player = {
@@ -130,7 +138,10 @@ export type Player = {
   starts: number;
   ownership: number;
   chanceOfPlaying: number | null;
+  chanceOfPlayingThis: number | null;
   news: string;
+  status: string;
+  penaltiesOrder: number | null;
 };
 
 export type UpcomingFixture = {

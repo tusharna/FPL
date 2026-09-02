@@ -1,3 +1,4 @@
+import { Analysis } from "@/components/Analysis";
 import { Banknote, CalendarClock, Trophy, UserRound, Wallet } from "lucide-react";
 import { Bench } from "@/components/Bench";
 import { CaptainCard } from "@/components/CaptainCard";
@@ -6,10 +7,10 @@ import { Squad } from "@/components/Squad";
 import { Badge } from "@/components/ui/Badge";
 import { StatCard } from "@/components/ui/StatCard";
 import { formatDeadline, formatPrice, formatRank } from "@/lib/format";
-import type { DashboardData } from "@/lib/fpl/types";
+import type { DashboardPayload } from "@/lib/fpl/dashboard-data";
 
 type DashboardProps = {
-  data: DashboardData;
+  data: DashboardPayload;
 };
 
 export function Dashboard({ data }: DashboardProps) {
@@ -39,7 +40,7 @@ export function Dashboard({ data }: DashboardProps) {
             </p>
           </div>
           <div className="max-w-sm rounded-2xl border border-emerald-300/15 bg-emerald-400/8 px-4 py-3 text-sm text-emerald-100/90">
-            Your 15-player squad, formation, captaincy, and next fixtures — mapped live from the FPL API.
+            Current squad from the FPL API, plus a deterministic recommendation engine below.
           </div>
         </div>
       </header>
@@ -92,6 +93,7 @@ export function Dashboard({ data }: DashboardProps) {
 
       <Bench bench={data.bench} />
       <Squad startingXi={data.startingXi} />
+      <Analysis analysis={data.analysis} />
     </div>
   );
 }

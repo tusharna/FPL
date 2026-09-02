@@ -1,6 +1,6 @@
-# FPL Report — Phase 1
+# FPL Report — Phase 1 + Phase 2
 
-Live Fantasy Premier League squad dashboard for a single entry. Phase 1 connects to the public FPL API, maps player IDs, and displays the full 15-player squad.
+Live Fantasy Premier League squad dashboard plus a deterministic decision engine. Phase 1 maps the 15-player squad from the public FPL API. Phase 2 scores players, legal formations, captaincy, bench order, and SAVE vs TRANSFER.
 
 ## Setup
 
@@ -31,6 +31,6 @@ npm test
 
 ## Scope
 
-This phase does **not** include AI, transfer recommendations, captain picks, or automation. Those belong in later phases.
+This phase does **not** include AI, automatic transfers, a database, or authentication. Those belong in later phases.
 
 The app only uses public FPL endpoints. Do not store FPL cookies, bearer tokens, or login credentials.

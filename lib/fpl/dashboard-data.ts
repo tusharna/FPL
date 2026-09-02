@@ -1,3 +1,5 @@
+import { analyzeGameweek } from "@/lib/analysis/team";
+import type { GameweekAnalysis } from "@/lib/analysis/types";
 import { getBootstrapStatic } from "./bootstrap";
 import { getEntryId } from "./client";
 import { getEntry } from "./entry";
@@ -14,9 +16,13 @@ import {
 import { getPicks } from "./picks";
 import type { DashboardData, Player } from "./types";
 
+export type DashboardPayload = DashboardData & {
+  analysis: GameweekAnalysis;
+};
+
 export async function getDashboardData(
   entryId = getEntryId(),
-): Promise<DashboardData> {
+): Promise<DashboardPayload> {
   const [bootstrap, fixtures] = await Promise.all([
     getBootstrapStatic(),
     getFixtures(),
@@ -30,11 +36,11 @@ export async function getDashboardData(
 
   const teamsById = indexById(bootstrap.teams);
   const typesById = indexById(bootstrap.element_types);
+  const allPlayers = bootstrap.elements.map((element) =>
+    normalizePlayer(element, teamsById, typesById),
+  );
   const playersById = new Map<number, Player>(
-    bootstrap.elements.map((element) => [
-      element.id,
-      normalizePlayer(element, teamsById, typesById),
-    ]),
+    allPlayers.map((player) => [player.id, player]),
   );
 
   const mapped = mapPicksToSquad(picksResponse.picks, playersById);
@@ -47,6 +53,17 @@ export async function getDashboardData(
   const { startingXi, bench, captain, viceCaptain } = classifySquad(squad);
 
   const history = picksResponse.entry_history;
+  const bank = tenthsToMillions(history?.bank ?? entry.last_deadline_bank);
+
+  const analysis = analyzeGameweek({
+    gameweek: gameweek.relevant.id,
+    squad,
+    startingXiIds: startingXi.map((player) => player.id),
+    bank,
+    allPlayers,
+    fixtures,
+    teams: bootstrap.teams,
+  });
 
   return {
     entryId,
@@ -55,7 +72,7 @@ export async function getDashboardData(
       teamName: entry.name,
       managerName: `${entry.player_first_name} ${entry.player_last_name}`.trim(),
       teamValue: tenthsToMillions(history?.value ?? entry.last_deadline_value),
-      bank: tenthsToMillions(history?.bank ?? entry.last_deadline_bank),
+      bank,
       totalPoints: history?.total_points ?? entry.summary_overall_points,
       overallRank: history?.overall_rank ?? entry.summary_overall_rank,
       gameweekPoints: history?.points ?? entry.summary_event_points,
@@ -65,5 +82,6 @@ export async function getDashboardData(
     bench,
     captain,
     viceCaptain,
+    analysis,
   };
 }

@@ -83,7 +83,10 @@ export function normalizePlayer(
     starts: element.starts,
     ownership: parseNumeric(element.selected_by_percent),
     chanceOfPlaying: element.chance_of_playing_next_round,
+    chanceOfPlayingThis: element.chance_of_playing_this_round,
     news: element.news ?? "",
+    status: element.status ?? "a",
+    penaltiesOrder: element.penalties_order ?? null,
   };
 }
 
@@ -109,7 +112,10 @@ export function unknownPlayer(elementId: number, pick: FplPick): SquadPlayer {
     starts: 0,
     ownership: 0,
     chanceOfPlaying: null,
+    chanceOfPlayingThis: null,
     news: "",
+    status: "u",
+    penaltiesOrder: null,
     squadPosition: pick.position,
     isCaptain: pick.is_captain,
     isViceCaptain: pick.is_vice_captain,
