@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { CaptainCard } from "@/components/report/CaptainCard";
 import { ExecutiveSummary } from "@/components/report/ExecutiveSummary";
 import { RecommendedXI } from "@/components/report/RecommendedXI";
@@ -13,12 +14,38 @@ import type { AIReport, ReportResult } from "@/lib/ai/types";
 type ReportResponse = ReportResult & {
   gameweek?: number;
   error?: string;
+  persisted?: {
+    recommendationId: number;
+    gameweekId: number;
+    created: boolean;
+    reportSaved: boolean;
+  } | null;
 };
 
 export function GameweekReport() {
   const [loading, setLoading] = useState(false);
+  const [loadingStored, setLoadingStored] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ReportResponse | null>(null);
+
+  useEffect(() => {
+    async function loadStored() {
+      try {
+        const response = await fetch("/api/report?stored=true");
+        if (!response.ok) {
+          return;
+        }
+        const payload = (await response.json()) as ReportResponse;
+        if (payload.report) {
+          setResult(payload);
+        }
+      } finally {
+        setLoadingStored(false);
+      }
+    }
+
+    void loadStored();
+  }, []);
 
   async function generate() {
     setLoading(true);
@@ -57,12 +84,27 @@ export function GameweekReport() {
         <button
           type="button"
           onClick={() => void generate()}
-          disabled={loading}
+          disabled={loading || loadingStored}
           className="rounded-full bg-emerald-400 px-5 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {loading ? "Generating… (up to 1 min)" : "Generate Report"}
+          {loading
+            ? "Generating… (up to 1 min)"
+            : loadingStored
+              ? "Loading…"
+              : "Generate Report"}
         </button>
       </div>
+
+      {result?.persisted ? (
+        <div className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 text-sm text-emerald-100">
+          Snapshot saved to history
+          {result.persisted.created ? " (new recommendation)" : " (existing recommendation preserved)"}.
+          {" "}
+          <Link href="/gameweeks" className="underline">
+            View history
+          </Link>
+        </div>
+      ) : null}
 
       {error ? (
         <Panel className="p-5">

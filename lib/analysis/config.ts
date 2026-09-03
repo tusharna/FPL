@@ -1,3 +1,5 @@
+export const ENGINE_VERSION = "2.0.0";
+
 export const SHORT_TERM_HORIZON = 1;
 export const MEDIUM_TERM_HORIZON = 5;
 export const FIXTURE_HORIZON = 3;
