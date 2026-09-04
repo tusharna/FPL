@@ -1,6 +1,6 @@
 import type { GameweekAnalysis } from "@/lib/analysis/types";
 import type { IntelligenceBundle } from "@/lib/intelligence/types";
-import { formatDeadline, formatPrice } from "@/lib/format";
+import { formatDeadlineIST, formatPrice } from "@/lib/format";
 import type { Notification, NotificationState } from "./types";
 
 export function buildNotificationState(
@@ -74,7 +74,7 @@ export function formatGameweekReportNotification(
       ? `Key risk:\n${keyRisk.player.webName} — ${keyRisk.reasons[0] ?? "availability concern"}`
       : "Key risk: None flagged",
     "",
-    `Deadline:\n${formatDeadline(deadline ?? null)}`,
+    `Deadline:\n${formatDeadlineIST(deadline ?? null)}`,
   ];
 
   return {
@@ -100,7 +100,7 @@ export function formatCaptainChangeNotification(
       "Reason:",
       reason,
       "",
-      `Deadline:\n${formatDeadline(deadline ?? null)}`,
+      `Deadline:\n${formatDeadlineIST(deadline ?? null)}`,
     ].join("\n"),
   };
 }
@@ -118,7 +118,7 @@ export function formatCaptainRiskNotification(
       `Captain: ${captainName}`,
       reason,
       "",
-      `Deadline:\n${formatDeadline(deadline ?? null)}`,
+      `Deadline:\n${formatDeadlineIST(deadline ?? null)}`,
     ].join("\n"),
   };
 }
@@ -237,6 +237,7 @@ export function formatDeadlineReminderNotification(
   captainName: string,
   transferAction: string,
   riskLine?: string,
+  deadline?: string | null,
 ): Pick<Notification, "title" | "message"> {
   const timeLabel =
     hoursRemaining >= 24
@@ -256,6 +257,10 @@ export function formatDeadlineReminderNotification(
 
   if (riskLine) {
     lines.push(`Risk: ${riskLine}`);
+  }
+
+  if (deadline) {
+    lines.push("", `Deadline: ${formatDeadlineIST(deadline)}`);
   }
 
   lines.push("", "Open your FPL report.");

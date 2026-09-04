@@ -1,4 +1,5 @@
 import { formatEmailSubject, formatSmsMessage, selectChannels } from "./channels";
+import { renderNotificationEmailHtml } from "./email-template";
 import { shouldDelayDelivery } from "./quiet-hours";
 import {
   createDelivery,
@@ -87,6 +88,7 @@ export async function dispatchNotification(
           to: destination,
           subject: formatEmailSubject(notification),
           text: notification.message,
+          html: renderNotificationEmailHtml(notification),
         });
         await updateDelivery(delivery.id, {
           status: "SENT",
@@ -167,6 +169,14 @@ export async function processPendingDeliveries(
             dedupeKey: notification.dedupe_key,
           }),
           text: notification.message,
+          html: renderNotificationEmailHtml({
+            type: notification.type as Notification["type"],
+            severity: notification.severity as Notification["severity"],
+            title: notification.title,
+            message: notification.message,
+            actionRequired: notification.action_required,
+            dedupeKey: notification.dedupe_key,
+          }),
         });
         await updateDelivery(delivery.id, {
           status: "SENT",

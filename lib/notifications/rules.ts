@@ -384,6 +384,7 @@ export function evaluateDeadlineReminders(
       captainName,
       transferAction,
       riskLine,
+      deadline,
     );
 
     const notification: Notification = {

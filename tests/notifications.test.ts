@@ -376,3 +376,37 @@ describe("channel selection", () => {
     expect(channels).toContain("SMS");
   });
 });
+
+describe("email formatting", () => {
+  it("formats deadline in IST for notifications", async () => {
+    const { formatDeadlineIST } = await import("@/lib/format");
+    const formatted = formatDeadlineIST("2026-09-04T13:00:00Z");
+    expect(formatted).toContain("IST");
+    expect(formatted).not.toContain("BST");
+  });
+
+  it("renders styled HTML email with deadline highlight", async () => {
+    const { renderNotificationEmailHtml } = await import("@/lib/notifications/email-template");
+    const html = renderNotificationEmailHtml({
+      type: "GAMEWEEK_REPORT",
+      severity: "INFO",
+      title: "GW3 FPL Report",
+      message: [
+        "GW3 FPL Report",
+        "",
+        "Formation: 3-5-2",
+        "Captain: B.Fernandes",
+        "Transfer: SAVE",
+        "",
+        "Deadline:",
+        "Friday, 5 September 2026 at 12:00 am IST",
+      ].join("\n"),
+      actionRequired: false,
+      dedupeKey: "GW3:GAMEWEEK_REPORT",
+    });
+    expect(html).toContain("<!DOCTYPE html>");
+    expect(html).toContain("GW3 FPL Report");
+    expect(html).toContain("Deadline (IST)");
+    expect(html).toContain("Open FPL Report");
+  });
+});
