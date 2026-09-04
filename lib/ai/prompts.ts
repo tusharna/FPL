@@ -16,6 +16,12 @@ export function buildSystemPrompt(): string {
     "playerIn, playerOut, captain.player, viceCaptain.player, and risks[].player must be player name strings, never objects.",
     "formation, captain.player, viceCaptain.player, and transfer.action must match the input exactly.",
     "captain.confidence must be LOW, MEDIUM, or HIGH and should match the supplied captain.confidence.",
+    "You may explain supplied intelligence.",
+    "Do not invent news.",
+    "Do not infer an injury that is not supplied.",
+    "Do not treat uncertain reports as confirmed.",
+    "Clearly distinguish confirmed information from uncertain information.",
+    "FPL-provided availability data has priority over conflicting external information.",
   ].join("\n");
 }
 

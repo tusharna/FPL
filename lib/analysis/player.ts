@@ -1,10 +1,12 @@
 import type { FplFixture, FplTeam, Player } from "@/lib/fpl/types";
+import type { PlayerIntelligence } from "@/lib/intelligence/types";
 import {
   FIXTURE_HORIZON,
   MEDIUM_TERM_HORIZON,
   SHORT_TERM_HORIZON,
 } from "./config";
 import { scoreFixturesForTeam } from "./fixtures";
+import { intelligenceAvailabilityAdjustment } from "@/lib/intelligence/availability";
 import {
   availabilityRiskFromPlayer,
   minutesRiskFromPlayer,
@@ -21,6 +23,7 @@ export type AnalysisContext = {
   fixtures: FplFixture[];
   teamsById: Map<number, FplTeam>;
   fromEventId: number;
+  intelligenceById?: Map<number, PlayerIntelligence>;
 };
 
 export function analyzePlayer(
@@ -51,7 +54,11 @@ export function analyzePlayer(
     context.fromEventId,
     MEDIUM_TERM_HORIZON,
   );
-  const availabilityRisk = availabilityRiskFromPlayer(player);
+  const availabilityRisk = Math.min(
+    1,
+    availabilityRiskFromPlayer(player) +
+      intelligenceAvailabilityAdjustment(context.intelligenceById?.get(player.id)),
+  );
   const minutesRisk = minutesRiskFromPlayer(player);
   const minutesSecurity = minutesSecurityFromRisk(minutesRisk);
   const attack = attackingPotential(

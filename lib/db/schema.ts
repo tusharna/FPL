@@ -9,6 +9,10 @@ export const TABLES = {
   recommendationPlayers: "recommendation_players",
   actualResults: "actual_results",
   reports: "reports",
+  intelligenceEvents: "intelligence_events",
+  priceSnapshots: "price_snapshots",
+  fixtureChanges: "fixture_changes",
+  newsItems: "news_items",
 } as const;
 
 export type ManagerRow = {
@@ -113,4 +117,46 @@ export type ReportRow = {
   provider: string | null;
   model: string | null;
   generated_at: string;
+};
+
+export type IntelligenceEventRow = {
+  id: number;
+  gameweek_id: number | null;
+  player_id: number | null;
+  type: string;
+  risk: string | null;
+  confidence: number | null;
+  reason: string | null;
+  source: string | null;
+  source_url: string | null;
+  detected_at: string;
+};
+
+export type PriceSnapshotRow = {
+  id: number;
+  player_id: number;
+  price: number;
+  captured_at: string;
+};
+
+export type FixtureChangeRow = {
+  id: number;
+  fixture_id: number;
+  type: string;
+  previous_value: string | null;
+  new_value: string | null;
+  detected_at: string;
+};
+
+export type NewsItemRow = {
+  id: string;
+  player_id: number | null;
+  title: string;
+  summary: string | null;
+  source: string | null;
+  source_url: string | null;
+  published_at: string | null;
+  relevance: string | null;
+  confidence: number | null;
+  created_at: string;
 };

@@ -1,6 +1,6 @@
-# FPL Report — Phases 1–4
+# FPL Report — Phases 1–5
 
-Live Fantasy Premier League squad dashboard, a deterministic decision engine, an optional AI explanation layer, and persistent gameweek history.
+Live Fantasy Premier League squad dashboard, a deterministic decision engine, an optional AI explanation layer, persistent gameweek history, and live intelligence monitoring.
 
 ## Setup
 
@@ -47,6 +47,7 @@ Sections:
 - `/squad` — live picks, pitch, bench, and table
 - `/analysis` — deterministic decision engine
 - `/report` — AI gameweek report (Generate Report button)
+- `/intelligence` — live availability, fixtures, prices, and news alerts
 - `/gameweeks` — historical snapshots, evaluation, and metrics
 - `/gameweeks/[gw]` — gameweek detail with stored recommendation and report
 
@@ -59,4 +60,4 @@ npx tsc --noEmit
 
 ## Scope
 
-Do not store FPL cookies, bearer tokens, or login credentials. Phase 4 adds Supabase history only — no authentication, automatic transfers, scheduled jobs, external news APIs, or machine learning.
+Do not store FPL cookies, bearer tokens, or login credentials. Phase 5 adds live intelligence on top of FPL data — no automatic transfers, scheduled jobs, external news APIs beyond the pluggable provider abstraction, or machine learning.

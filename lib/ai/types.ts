@@ -71,6 +71,20 @@ export type AIReportInput = {
     gameweeks: number;
     summary: string;
   };
+  intelligence?: {
+    freshness: {
+      source: string;
+      fetchedAt: string;
+      expiresAt?: string;
+      status: "FRESH" | "STALE" | "ERROR";
+    }[];
+    keyAlerts: {
+      player: string;
+      type: string;
+      severity: "LOW" | "MEDIUM" | "HIGH";
+      explanation: string;
+    }[];
+  };
 };
 
 export type AIReport = {

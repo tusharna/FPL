@@ -1,6 +1,8 @@
 import { cache } from "react";
 import { analyzeGameweek } from "@/lib/analysis/team";
 import type { GameweekAnalysis } from "@/lib/analysis/types";
+import { runIntelligencePipeline } from "@/lib/intelligence";
+import type { IntelligenceBundle } from "@/lib/intelligence/types";
 import { getBootstrapStatic } from "./bootstrap";
 import { getEntryId } from "./client";
 import { getEntry } from "./entry";
@@ -19,6 +21,7 @@ import type { DashboardData, Player } from "./types";
 
 export type DashboardPayload = DashboardData & {
   analysis: GameweekAnalysis;
+  intelligence: IntelligenceBundle;
 };
 
 export const getDashboardData = cache(async function getDashboardData(
@@ -66,6 +69,43 @@ export const getDashboardData = cache(async function getDashboardData(
     teams: bootstrap.teams,
   });
 
+  const squadIds = new Set(squad.map((player) => player.id));
+  const squadPlayers = allPlayers.filter((player) => squadIds.has(player.id));
+
+  const intelligence = await runIntelligencePipeline({
+    gameweekId: gameweek.relevant.id,
+    entryId,
+    squad: squadPlayers,
+    allPlayers,
+    fixtures,
+    teamsById,
+    captainId: captain?.id,
+    viceCaptainId: viceCaptain?.id,
+    transferPlayerIds: [
+      analysis.transferRecommendation.playerOut?.playerId,
+      analysis.transferRecommendation.playerIn?.playerId,
+    ].filter((id): id is number => id != null),
+    recommendedXiIds: analysis.recommendedXI.map((player) => player.playerId),
+  });
+
+  const intelligenceById = new Map(
+    intelligence.players.map((player) => [player.playerId, player]),
+  );
+
+  const finalAnalysis =
+    intelligence.shouldRecalculate
+      ? analyzeGameweek({
+          gameweek: gameweek.relevant.id,
+          squad,
+          startingXiIds: startingXi.map((player) => player.id),
+          bank,
+          allPlayers,
+          fixtures,
+          teams: bootstrap.teams,
+          intelligenceById,
+        })
+      : analysis;
+
   return {
     entryId,
     gameweek,
@@ -83,6 +123,7 @@ export const getDashboardData = cache(async function getDashboardData(
     bench,
     captain,
     viceCaptain,
-    analysis,
+    analysis: finalAnalysis,
+    intelligence,
   };
 });

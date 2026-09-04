@@ -9,6 +9,7 @@ import type {
   PlayerAnalysis,
 } from "@/lib/analysis/types";
 import type { Position } from "@/lib/fpl/types";
+import type { IntelligenceBundle } from "@/lib/intelligence/types";
 import type { AIReportInput, PlayerSummary } from "./types";
 
 function round2(value: number): number {
@@ -88,6 +89,7 @@ export function toAIReportInput(
   analysis: GameweekAnalysis,
   currentStartingXi: PlayerAnalysis[],
   currentBench: PlayerAnalysis[],
+  intelligence?: IntelligenceBundle,
 ): AIReportInput {
   return {
     gameweek: analysis.gameweek,
@@ -148,5 +150,16 @@ export function toAIReportInput(
         MEDIUM_TERM_HORIZON,
       ),
     },
+    intelligence: intelligence
+      ? {
+          freshness: intelligence.freshness,
+          keyAlerts: intelligence.keyAlerts.map((alert) => ({
+            player: alert.player,
+            type: alert.type,
+            severity: alert.severity,
+            explanation: alert.explanation,
+          })),
+        }
+      : undefined,
   };
 }

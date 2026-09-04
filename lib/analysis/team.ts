@@ -8,6 +8,7 @@ import { analyzePlayers } from "./player";
 import { riskLevelFromScores, riskReasons } from "./risk";
 import { findTransferCandidates, recommendTransfer } from "./transfers";
 import type { GameweekAnalysis } from "./types";
+import type { PlayerIntelligence } from "@/lib/intelligence/types";
 
 export function analyzeGameweek(input: {
   gameweek: number;
@@ -18,12 +19,14 @@ export function analyzeGameweek(input: {
   fixtures: FplFixture[];
   teams: FplTeam[];
   generatedAt?: string;
+  intelligenceById?: Map<number, PlayerIntelligence>;
 }): GameweekAnalysis {
   const teamsById = indexById(input.teams);
   const context = {
     fixtures: input.fixtures,
     teamsById,
     fromEventId: input.gameweek,
+    intelligenceById: input.intelligenceById,
   };
 
   const squadPlayers: Player[] = input.squad;

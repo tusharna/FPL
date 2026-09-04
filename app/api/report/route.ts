@@ -44,7 +44,12 @@ export async function GET(request: Request) {
       data.analysis,
       data.bench.map((player) => player.id),
     );
-    const input = toAIReportInput(data.analysis, currentXi, currentBench);
+    const input = toAIReportInput(
+      data.analysis,
+      currentXi,
+      currentBench,
+      data.intelligence,
+    );
     const result = await generateGameweekReport(input, data.analysis);
 
     const persisted = await persistGameweekReport(data, result, {

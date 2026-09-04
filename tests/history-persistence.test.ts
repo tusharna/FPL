@@ -115,6 +115,22 @@ function mockDashboardPayload(): DashboardPayload {
       fixtureOutlook: [],
       generatedAt: "2026-09-02T00:00:00.000Z",
     },
+    intelligence: {
+      gameweekId: 2,
+      fetchedAt: "2026-09-02T00:00:00.000Z",
+      freshness: [],
+      availability: [],
+      players: [],
+      fixtureChanges: [],
+      fixtureIntelligence: [],
+      priceSignals: [],
+      news: [],
+      conflicts: [],
+      impacts: [],
+      keyAlerts: [],
+      shouldRecalculate: false,
+      errors: [],
+    },
   };
 }
 
