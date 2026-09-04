@@ -4,6 +4,21 @@ import type { AIProvider, AIReport, AIReportInput } from "./types";
 const DEFAULT_TIMEOUT_MS = 60_000;
 const DEFAULT_MODEL = "gpt-4o-mini";
 
+function normalizeModel(model?: string): string {
+  const trimmed = model?.trim();
+  return trimmed && trimmed.length > 0 ? trimmed : DEFAULT_MODEL;
+}
+
+function supportsTemperature(model: string): boolean {
+  const normalized = model.toLowerCase();
+  return !(
+    normalized.startsWith("gpt-5") ||
+    normalized.startsWith("o1") ||
+    normalized.startsWith("o3") ||
+    normalized.includes("luna")
+  );
+}
+
 export class AIProviderError extends Error {
   readonly code: "unauthorized" | "rate_limit" | "timeout" | "provider" | "invalid_json";
 
@@ -27,12 +42,16 @@ function parseModelJson(content: string): AIReport {
 }
 
 export class OpenAIProvider implements AIProvider {
+  private readonly model: string;
+
   constructor(
     private readonly fetchImpl: typeof fetch = fetch,
     private readonly apiKey = process.env.OPENAI_API_KEY,
-    private readonly model = process.env.OPENAI_MODEL ?? DEFAULT_MODEL,
+    model = process.env.OPENAI_MODEL,
     private readonly timeoutMs = Number(process.env.AI_TIMEOUT_MS ?? DEFAULT_TIMEOUT_MS),
-  ) {}
+  ) {
+    this.model = normalizeModel(model);
+  }
 
   async generateReport(input: AIReportInput, correction?: string): Promise<AIReport> {
     if (!this.apiKey) {
@@ -59,7 +78,7 @@ export class OpenAIProvider implements AIProvider {
         },
         body: JSON.stringify({
           model: this.model,
-          temperature: 0.2,
+          ...(supportsTemperature(this.model) ? { temperature: 0.2 } : {}),
           response_format: { type: "json_object" },
           messages,
         }),
@@ -72,7 +91,13 @@ export class OpenAIProvider implements AIProvider {
         throw new AIProviderError("AI report unavailable because the provider rate-limited the request.", "rate_limit");
       }
       if (!response.ok) {
-        throw new AIProviderError("AI report unavailable because the provider returned an error.", "provider");
+        const errorBody = await response.text();
+        const providerMessage = parseProviderErrorMessage(errorBody);
+        throw new AIProviderError(
+          providerMessage ??
+            `AI report unavailable because the provider returned an error for model "${this.model}".`,
+          "provider",
+        );
       }
 
       const payload = (await response.json()) as {
@@ -107,6 +132,15 @@ export function hasAICredentials(): boolean {
 
 export function createAIProvider(): AIProvider {
   return new OpenAIProvider();
+}
+
+function parseProviderErrorMessage(body: string): string | null {
+  try {
+    const parsed = JSON.parse(body) as { error?: { message?: string } };
+    return parsed.error?.message ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export { buildCorrectionPrompt };

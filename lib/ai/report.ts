@@ -1,6 +1,11 @@
 import type { GameweekAnalysis } from "@/lib/analysis/types";
 import { createFallbackReport } from "./fallback";
-import { buildCorrectionPrompt, createAIProvider, hasAICredentials } from "./provider";
+import {
+  AIProviderError,
+  buildCorrectionPrompt,
+  createAIProvider,
+  hasAICredentials,
+} from "./provider";
 import type { AIProvider, AIReportInput, ReportResult } from "./types";
 import { lockReportToEngine, validateReport } from "./validate";
 
@@ -49,11 +54,17 @@ export async function generateGameweekReport(
       source: "fallback",
       notice: fallbackNotice,
     };
-  } catch {
+  } catch (error) {
+    const detail =
+      error instanceof AIProviderError
+        ? error.message
+        : error instanceof Error
+          ? error.message
+          : null;
     return {
       report: createFallbackReport(analysis),
       source: "fallback",
-      notice: fallbackNotice,
+      notice: detail ? `${fallbackNotice} (${detail})` : fallbackNotice,
     };
   }
 }
