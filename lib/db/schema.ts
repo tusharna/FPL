@@ -13,6 +13,10 @@ export const TABLES = {
   priceSnapshots: "price_snapshots",
   fixtureChanges: "fixture_changes",
   newsItems: "news_items",
+  notificationPreferences: "notification_preferences",
+  notificationEvents: "notification_events",
+  notificationDeliveries: "notification_deliveries",
+  notificationState: "notification_state",
 } as const;
 
 export type ManagerRow = {
@@ -159,4 +163,64 @@ export type NewsItemRow = {
   relevance: string | null;
   confidence: number | null;
   created_at: string;
+};
+
+export type NotificationPreferencesRow = {
+  id: number;
+  entry_id: number;
+  email_enabled: boolean;
+  sms_enabled: boolean;
+  gameweek_reports: boolean;
+  deadline_reminders: boolean;
+  captain_alerts: boolean;
+  lineup_alerts: boolean;
+  transfer_alerts: boolean;
+  availability_alerts: boolean;
+  fixture_alerts: boolean;
+  price_alerts: boolean;
+  minimum_severity: string;
+  quiet_hours_enabled: boolean;
+  quiet_hours_start: string | null;
+  quiet_hours_end: string | null;
+  email_destination: string | null;
+  sms_destination: string | null;
+  updated_at: string;
+};
+
+export type NotificationEventRow = {
+  id: number;
+  entry_id: number;
+  gameweek_id: number | null;
+  type: string;
+  severity: string;
+  title: string;
+  message: string;
+  player_id: number | null;
+  action_required: boolean;
+  dedupe_key: string;
+  created_at: string;
+  expires_at: string | null;
+  read_at: string | null;
+};
+
+export type NotificationDeliveryRow = {
+  id: number;
+  notification_id: number;
+  channel: string;
+  destination: string | null;
+  status: string;
+  provider_message_id: string | null;
+  sent_at: string | null;
+  delivered_at: string | null;
+  failed_at: string | null;
+  error_message: string | null;
+};
+
+export type NotificationStateRow = {
+  id: number;
+  entry_id: number;
+  gameweek_id: number;
+  state_json: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
 };
