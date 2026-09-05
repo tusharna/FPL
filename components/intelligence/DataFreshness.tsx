@@ -1,5 +1,6 @@
 import type { DataFreshness } from "@/lib/intelligence/types";
 import { formatFreshnessAge } from "@/lib/intelligence/freshness";
+import { formatDateTime } from "@/lib/format";
 import { Badge } from "@/components/ui/Badge";
 import { Panel } from "@/components/ui/Panel";
 
@@ -19,7 +20,7 @@ export function DataFreshnessPanel({ items }: DataFreshnessProps) {
             <span>{item.source}</span>
             <div className="flex items-center gap-2">
               <span className="text-white/50">
-                Updated {formatFreshnessAge(item.fetchedAt)}
+                Updated {formatFreshnessAge(item.fetchedAt)} · {formatDateTime(item.fetchedAt)}
               </span>
               <Badge
                 tone={

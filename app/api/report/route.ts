@@ -8,6 +8,7 @@ import {
   persistGameweekReport,
 } from "@/lib/history";
 import { isDatabaseConfigured } from "@/lib/db/client";
+import { sendManualReportEmail } from "@/lib/notifications/report-email";
 
 export const dynamic = "force-dynamic";
 
@@ -58,10 +59,13 @@ export async function GET(request: Request) {
       allPlayers,
     });
 
+    const email = await sendManualReportEmail(data.entryId, data, result);
+
     return Response.json({
       gameweek: data.analysis.gameweek,
       ...result,
       persisted,
+      email,
     });
   } catch (error) {
     console.error("Report generation failed:", error);

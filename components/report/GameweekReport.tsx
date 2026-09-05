@@ -14,6 +14,10 @@ import type { AIReport, ReportResult } from "@/lib/ai/types";
 type ReportResponse = ReportResult & {
   gameweek?: number;
   error?: string;
+  email?: {
+    sent: boolean;
+    skipped?: string;
+  };
   persisted?: {
     recommendationId: number;
     gameweekId: number;
@@ -94,6 +98,18 @@ export function GameweekReport() {
               : "Generate Report"}
         </button>
       </div>
+
+      {result?.email?.sent ? (
+        <div className="rounded-2xl border border-sky-300/20 bg-sky-300/10 px-4 py-3 text-sm text-sky-100">
+          Report emailed to your configured address.
+        </div>
+      ) : null}
+
+      {result?.email?.skipped && !result.email.sent ? (
+        <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white/55">
+          Email not sent: {result.email.skipped}
+        </div>
+      ) : null}
 
       {result?.persisted ? (
         <div className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 text-sm text-emerald-100">

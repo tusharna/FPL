@@ -8,4 +8,5 @@ export * from "./channels";
 export * from "./rules";
 export * from "./persist";
 export * from "./dispatcher";
+export * from "./report-email";
 export * from "./runner";

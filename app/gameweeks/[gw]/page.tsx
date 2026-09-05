@@ -8,6 +8,7 @@ import { GameweekSummary } from "@/components/history/GameweekSummary";
 import { RecommendationComparison } from "@/components/history/RecommendationComparison";
 import { Badge } from "@/components/ui/Badge";
 import { Panel } from "@/components/ui/Panel";
+import { formatDeadline } from "@/lib/format";
 import { loadGameweekDetail } from "@/lib/history";
 import { isDatabaseConfigured } from "@/lib/db/client";
 
@@ -54,6 +55,11 @@ export default async function GameweekDetailPage({ params }: PageProps) {
         {detail.report ? (
           <Badge tone="mint">
             Report saved {detail.report.provider ?? "fallback"}
+          </Badge>
+        ) : null}
+        {detail.gameweek.deadline_time ? (
+          <Badge tone="neutral">
+            Deadline {formatDeadline(detail.gameweek.deadline_time)}
           </Badge>
         ) : null}
       </div>

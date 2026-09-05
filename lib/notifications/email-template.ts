@@ -114,10 +114,10 @@ function parseMessageBody(message: string): string {
       closeTable();
       const deadlineValue = lines[i + 1] && !lines[i + 1].includes(":") ? lines[i + 1] : line.replace(/^Deadline:\s*/, "");
       if (lines[i + 1] && !lines[i + 1].includes(":")) {
-        parts.push(renderRow("Deadline (IST)", lines[i + 1], true));
+        parts.push(renderRow("Deadline", deadlineValue, true));
         i += 1;
       } else {
-        parts.push(renderRow("Deadline (IST)", deadlineValue, true));
+        parts.push(renderRow("Deadline", deadlineValue, true));
       }
       continue;
     }
@@ -142,7 +142,7 @@ function parseMessageBody(message: string): string {
         const highlight = label === "Deadline";
         if (highlight) {
           closeTable();
-          parts.push(renderRow(`${label} (IST)`, value, true));
+          parts.push(renderRow("Deadline", value, true));
         } else {
           parts.push(renderRow(label, value));
         }
@@ -155,6 +155,18 @@ function parseMessageBody(message: string): string {
       parts.push(`<div style="margin:12px 0;padding:12px 14px;background:#f8fafc;border-radius:8px;">
         <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;margin-bottom:6px;">Reason</div>
         <div style="font-size:14px;color:#334155;line-height:1.5;">${escapeHtml(lines[i + 1])}</div>
+      </div>`);
+      i += 1;
+      continue;
+    }
+
+    if ((line === "Summary:" || line === "Verdict:") && lines[i + 1]) {
+      closeTable();
+      const accent = line === "Summary:" ? "#ecfdf5" : "#eff6ff";
+      const border = line === "Summary:" ? "#10b981" : "#3b82f6";
+      parts.push(`<div style="margin:12px 0;padding:14px;background:${accent};border-radius:10px;border-left:4px solid ${border};">
+        <div style="font-size:11px;font-weight:600;color:#334155;text-transform:uppercase;margin-bottom:6px;">${escapeHtml(line.replace(":", ""))}</div>
+        <div style="font-size:14px;color:#1e293b;line-height:1.6;">${escapeHtml(lines[i + 1])}</div>
       </div>`);
       i += 1;
       continue;
@@ -211,7 +223,7 @@ export function renderNotificationEmailHtml(notification: Notification): string 
             <td style="padding:16px 24px 24px;border-top:1px solid #e2e8f0;">
               <p style="margin:0;font-size:11px;color:#94a3b8;text-align:center;line-height:1.5;">
                 Deterministic FPL analysis — AI explains, never overrides engine decisions.<br />
-                Times shown in IST (Asia/Kolkata) where applicable.
+                All times shown in IST (Asia/Kolkata).
               </p>
             </td>
           </tr>

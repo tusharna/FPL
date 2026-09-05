@@ -1,6 +1,6 @@
 import type { GameweekAnalysis } from "@/lib/analysis/types";
 import type { IntelligenceBundle } from "@/lib/intelligence/types";
-import { formatDeadlineIST, formatPrice } from "@/lib/format";
+import { formatDeadline, formatPrice } from "@/lib/format";
 import type { Notification, NotificationState } from "./types";
 
 export function buildNotificationState(
@@ -74,12 +74,35 @@ export function formatGameweekReportNotification(
       ? `Key risk:\n${keyRisk.player.webName} — ${keyRisk.reasons[0] ?? "availability concern"}`
       : "Key risk: None flagged",
     "",
-    `Deadline:\n${formatDeadlineIST(deadline ?? null)}`,
+    `Deadline:\n${formatDeadline(deadline ?? null)}`,
   ];
 
   return {
     title: `GW${analysis.gameweek} FPL Report`,
     message: lines.join("\n"),
+  };
+}
+
+export function formatManualReportEmailMessage(
+  analysis: GameweekAnalysis,
+  executiveSummary: string,
+  finalVerdict: string,
+  deadline?: string | null,
+): Pick<Notification, "title" | "message"> {
+  const base = formatGameweekReportNotification(analysis, deadline);
+  const message = [
+    base.message,
+    "",
+    "Summary:",
+    executiveSummary,
+    "",
+    "Verdict:",
+    finalVerdict,
+  ].join("\n");
+
+  return {
+    title: base.title,
+    message,
   };
 }
 
@@ -100,7 +123,7 @@ export function formatCaptainChangeNotification(
       "Reason:",
       reason,
       "",
-      `Deadline:\n${formatDeadlineIST(deadline ?? null)}`,
+      `Deadline:\n${formatDeadline(deadline ?? null)}`,
     ].join("\n"),
   };
 }
@@ -118,7 +141,7 @@ export function formatCaptainRiskNotification(
       `Captain: ${captainName}`,
       reason,
       "",
-      `Deadline:\n${formatDeadlineIST(deadline ?? null)}`,
+      `Deadline:\n${formatDeadline(deadline ?? null)}`,
     ].join("\n"),
   };
 }
@@ -260,7 +283,7 @@ export function formatDeadlineReminderNotification(
   }
 
   if (deadline) {
-    lines.push("", `Deadline: ${formatDeadlineIST(deadline)}`);
+    lines.push("", `Deadline: ${formatDeadline(deadline)}`);
   }
 
   lines.push("", "Open your FPL report.");

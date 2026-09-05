@@ -1,6 +1,7 @@
 "use client";
 
 import type { NotificationEventRow } from "@/lib/notifications/types";
+import { formatTimestamp } from "@/lib/format";
 
 type NotificationCardProps = {
   notification: NotificationEventRow;
@@ -16,21 +17,6 @@ function severityIcon(severity: string): string {
     default:
       return "ℹ️";
   }
-}
-
-function formatRelativeTime(iso: string): string {
-  const date = new Date(iso);
-  const diffMs = Date.now() - date.getTime();
-  const hours = Math.floor(diffMs / (1000 * 60 * 60));
-  if (hours < 1) {
-    const minutes = Math.max(1, Math.floor(diffMs / (1000 * 60)));
-    return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
-  }
-  if (hours < 24) {
-    return `${hours} hour${hours === 1 ? "" : "s"} ago`;
-  }
-  const days = Math.floor(hours / 24);
-  return days === 1 ? "Yesterday" : `${days} days ago`;
 }
 
 export function NotificationCard({ notification, onMarkRead }: NotificationCardProps) {
@@ -54,7 +40,7 @@ export function NotificationCard({ notification, onMarkRead }: NotificationCardP
             {notification.message}
           </p>
           <p className="mt-3 text-xs text-white/40">
-            {formatRelativeTime(notification.created_at)}
+            {formatTimestamp(notification.created_at)}
           </p>
         </div>
         {isUnread && onMarkRead && (

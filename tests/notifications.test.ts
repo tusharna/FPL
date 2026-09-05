@@ -378,11 +378,11 @@ describe("channel selection", () => {
 });
 
 describe("email formatting", () => {
-  it("formats deadline in IST for notifications", async () => {
-    const { formatDeadlineIST } = await import("@/lib/format");
-    const formatted = formatDeadlineIST("2026-09-04T13:00:00Z");
-    expect(formatted).toContain("IST");
-    expect(formatted).not.toContain("BST");
+  it("formats deadlines in IST", async () => {
+    const { formatDeadline } = await import("@/lib/format");
+    const formatted = formatDeadline("2026-09-04T13:00:00Z");
+    expect(formatted).toMatch(/IST|GMT\+5:30/i);
+    expect(formatted).not.toMatch(/BST|GMT(?!\+5)/i);
   });
 
   it("renders styled HTML email with deadline highlight", async () => {
@@ -406,7 +406,36 @@ describe("email formatting", () => {
     });
     expect(html).toContain("<!DOCTYPE html>");
     expect(html).toContain("GW3 FPL Report");
-    expect(html).toContain("Deadline (IST)");
+    expect(html).toContain("Deadline");
     expect(html).toContain("Open FPL Report");
+  });
+
+  it("includes summary and verdict in manual report message", async () => {
+    const { formatManualReportEmailMessage } = await import("@/lib/notifications/formatter");
+    const { analysisPlayer } = await import("../tests/helpers");
+    const analysis = {
+      gameweek: 3,
+      recommendedFormation: "3-5-2",
+      recommendedXI: [],
+      benchOrder: [],
+      captain: { player: analysisPlayer({ playerId: 1, position: "MID" }), score: 0.9, reasons: [], confidence: "HIGH" as const },
+      viceCaptain: { player: analysisPlayer({ playerId: 2, position: "MID" }), score: 0.8, reasons: [], confidence: "HIGH" as const },
+      lineupChanges: [],
+      playerRisks: [],
+      transferRecommendation: { action: "SAVE" as const, reasons: [] },
+      topTransferCandidates: [],
+      fixtureOutlook: [],
+      generatedAt: new Date().toISOString(),
+    };
+    const formatted = formatManualReportEmailMessage(
+      analysis,
+      "Strong captain choice this week.",
+      "Hold transfers and captain Bruno.",
+      "2026-09-04T13:00:00Z",
+    );
+    expect(formatted.message).toContain("Summary:");
+    expect(formatted.message).toContain("Strong captain choice this week.");
+    expect(formatted.message).toContain("Verdict:");
+    expect(formatted.message).toContain("Hold transfers");
   });
 });

@@ -7,6 +7,7 @@ import { PriceChanges } from "@/components/intelligence/PriceChanges";
 import { Badge } from "@/components/ui/Badge";
 import { Panel } from "@/components/ui/Panel";
 import { formatFreshnessAge } from "@/lib/intelligence/freshness";
+import { formatDateTime } from "@/lib/format";
 
 type IntelligencePanelProps = {
   intelligence: IntelligenceBundle;
@@ -35,7 +36,7 @@ export function IntelligencePanel({ intelligence, playerNames }: IntelligencePan
           </p>
         </div>
         <Badge tone="mint">
-          Updated {formatFreshnessAge(intelligence.fetchedAt)}
+          Updated {formatFreshnessAge(intelligence.fetchedAt)} · {formatDateTime(intelligence.fetchedAt)}
         </Badge>
       </div>
 
