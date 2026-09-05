@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildAuthCallbackUrl,
   isCronPath,
   isProtectedApiPath,
   isPublicPath,
+  shouldForwardAuthCode,
 } from "@/lib/auth/middleware";
 import { sanitizeRedirectPath } from "@/lib/auth/redirect";
+import { NextRequest } from "next/server";
 
 describe("sanitizeRedirectPath", () => {
   it("allows internal application paths", () => {
@@ -38,5 +41,27 @@ describe("middleware route classification", () => {
     expect(isProtectedApiPath("/api/history")).toBe(true);
     expect(isProtectedApiPath("/api/intelligence")).toBe(true);
     expect(isProtectedApiPath("/api/notifications")).toBe(true);
+  });
+});
+
+describe("auth code forwarding", () => {
+  it("forwards OAuth codes landing on /login to /auth/callback", () => {
+    const request = new NextRequest(
+      "https://fpl-robocop.vercel.app/login?code=abc123&next=%2F",
+    );
+
+    expect(shouldForwardAuthCode("/login", request.nextUrl.searchParams)).toBe(
+      true,
+    );
+
+    const callbackUrl = buildAuthCallbackUrl(request);
+    expect(callbackUrl.pathname).toBe("/auth/callback");
+    expect(callbackUrl.searchParams.get("code")).toBe("abc123");
+    expect(callbackUrl.searchParams.get("next")).toBe("/");
+  });
+
+  it("does not forward codes already on /auth/callback", () => {
+    const params = new URLSearchParams("code=abc123");
+    expect(shouldForwardAuthCode("/auth/callback", params)).toBe(false);
   });
 });

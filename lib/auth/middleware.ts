@@ -27,9 +27,43 @@ export function isProtectedApiPath(pathname: string): boolean {
   return pathname.startsWith("/api/") && !isCronPath(pathname);
 }
 
+export function shouldForwardAuthCode(
+  pathname: string,
+  searchParams: URLSearchParams,
+): boolean {
+  return (
+    pathname !== "/auth/callback" && Boolean(searchParams.get("code"))
+  );
+}
+
+export function buildAuthCallbackUrl(request: NextRequest): URL {
+  const callbackUrl = new URL("/auth/callback", request.url);
+  const { searchParams } = request.nextUrl;
+
+  for (const key of ["code", "next", "error", "error_description"]) {
+    const value = searchParams.get(key);
+    if (value) {
+      callbackUrl.searchParams.set(key, value);
+    }
+  }
+
+  if (!callbackUrl.searchParams.get("next")) {
+    callbackUrl.searchParams.set(
+      "next",
+      sanitizeRedirectPath(searchParams.get("next")),
+    );
+  }
+
+  return callbackUrl;
+}
+
 export async function updateSession(request: NextRequest): Promise<NextResponse> {
   let response = NextResponse.next({ request });
   const { pathname } = request.nextUrl;
+
+  if (shouldForwardAuthCode(pathname, request.nextUrl.searchParams)) {
+    return NextResponse.redirect(buildAuthCallbackUrl(request));
+  }
 
   if (!isAuthConfigured()) {
     if (!isPublicPath(pathname) && !isCronPath(pathname)) {

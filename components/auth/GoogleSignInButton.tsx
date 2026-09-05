@@ -1,14 +1,30 @@
 "use client";
 
 import { useState } from "react";
-import { createSupabaseBrowserClient } from "@/lib/auth/client";
+import { createBrowserClient } from "@supabase/ssr";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { sanitizeRedirectPath } from "@/lib/auth/redirect";
 
 type GoogleSignInButtonProps = {
+  supabaseUrl: string;
+  supabaseAnonKey: string;
   nextPath?: string;
 };
 
-export function GoogleSignInButton({ nextPath = "/" }: GoogleSignInButtonProps) {
+let browserClient: SupabaseClient | null = null;
+
+function getBrowserClient(url: string, key: string): SupabaseClient {
+  if (!browserClient) {
+    browserClient = createBrowserClient(url, key);
+  }
+  return browserClient;
+}
+
+export function GoogleSignInButton({
+  supabaseUrl,
+  supabaseAnonKey,
+  nextPath = "/",
+}: GoogleSignInButtonProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,7 +33,7 @@ export function GoogleSignInButton({ nextPath = "/" }: GoogleSignInButtonProps) 
     setError(null);
 
     try {
-      const supabase = createSupabaseBrowserClient();
+      const supabase = getBrowserClient(supabaseUrl, supabaseAnonKey);
       const safeNext = sanitizeRedirectPath(nextPath);
       const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(safeNext)}`;
 
@@ -29,11 +45,15 @@ export function GoogleSignInButton({ nextPath = "/" }: GoogleSignInButtonProps) 
       });
 
       if (signInError) {
-        setError("Unable to sign in with Google. Please try again.");
+        setError(signInError.message || "Unable to start Google sign-in.");
         setLoading(false);
       }
-    } catch {
-      setError("Unable to sign in with Google. Please try again.");
+    } catch (caught) {
+      const message =
+        caught instanceof Error
+          ? caught.message
+          : "Unable to sign in with Google. Please try again.";
+      setError(message);
       setLoading(false);
     }
   }

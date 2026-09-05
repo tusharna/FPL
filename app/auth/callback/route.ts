@@ -11,11 +11,16 @@ import { sanitizeRedirectPath } from "@/lib/auth/redirect";
 
 export const dynamic = "force-dynamic";
 
+function loginRedirect(request: Request, error: string, nextPath: string): NextResponse {
+  const loginUrl = new URL("/login", request.url);
+  loginUrl.searchParams.set("error", error);
+  loginUrl.searchParams.set("next", nextPath);
+  return NextResponse.redirect(loginUrl);
+}
+
 export async function GET(request: Request) {
   if (!isAuthConfigured()) {
-    return NextResponse.redirect(
-      new URL("/login?error=auth_callback_error", request.url),
-    );
+    return loginRedirect(request, "auth_not_configured", "/");
   }
 
   const requestUrl = new URL(request.url);
@@ -26,18 +31,16 @@ export async function GET(request: Request) {
   if (oauthError) {
     const errorCode =
       oauthError === "access_denied" ? "oauth_cancelled" : "auth_callback_error";
-    return NextResponse.redirect(
-      new URL(`/login?error=${errorCode}&next=${encodeURIComponent(nextPath)}`, request.url),
-    );
+    return loginRedirect(request, errorCode, nextPath);
   }
 
   if (!code) {
-    return NextResponse.redirect(
-      new URL(`/login?error=auth_callback_error&next=${encodeURIComponent(nextPath)}`, request.url),
-    );
+    return loginRedirect(request, "missing_auth_code", nextPath);
   }
 
   const cookieStore = await cookies();
+  let response = NextResponse.redirect(new URL(nextPath, request.url));
+
   const supabase = createServerClient(getSupabaseUrl(), getSupabaseAnonKey(), {
     cookies: {
       getAll() {
@@ -47,6 +50,10 @@ export async function GET(request: Request) {
         cookiesToSet.forEach(({ name, value, options }) => {
           cookieStore.set(name, value, options);
         });
+        response = NextResponse.redirect(new URL(nextPath, request.url));
+        cookiesToSet.forEach(({ name, value, options }) => {
+          response.cookies.set(name, value, options);
+        });
       },
     },
   });
@@ -54,9 +61,8 @@ export async function GET(request: Request) {
   const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error || !data.user) {
-    return NextResponse.redirect(
-      new URL(`/login?error=auth_callback_error&next=${encodeURIComponent(nextPath)}`, request.url),
-    );
+    console.error("exchangeCodeForSession failed:", error?.message);
+    return loginRedirect(request, "session_exchange_failed", nextPath);
   }
 
   try {
@@ -64,10 +70,8 @@ export async function GET(request: Request) {
   } catch (profileError) {
     console.error("Failed to ensure user profile:", profileError);
     await supabase.auth.signOut();
-    return NextResponse.redirect(
-      new URL(`/login?error=auth_callback_error&next=${encodeURIComponent(nextPath)}`, request.url),
-    );
+    return loginRedirect(request, "profile_setup_failed", nextPath);
   }
 
-  return NextResponse.redirect(new URL(nextPath, request.url));
+  return response;
 }

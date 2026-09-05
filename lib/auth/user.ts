@@ -1,5 +1,5 @@
 import type { User } from "@supabase/supabase-js";
-import { getSupabaseAdmin } from "@/lib/db/client";
+import { getSupabaseAdmin, isDatabaseConfigured } from "@/lib/db/client";
 import { FplApiError } from "@/lib/fpl/client";
 import { createSupabaseServerClient } from "./server";
 
@@ -16,6 +16,8 @@ export class AuthError extends Error {
     this.name = "AuthError";
   }
 }
+
+const PROFILE_COLUMNS = "id, fpl_entry_id, created_at, updated_at";
 
 function getBootstrapFplEntryId(): number | null {
   const raw = process.env.FPL_BOOTSTRAP_ENTRY_ID ?? process.env.FPL_ENTRY_ID;
@@ -45,11 +47,13 @@ export async function getAuthenticatedUser(): Promise<User | null> {
   return user;
 }
 
-export async function getUserProfile(userId: string): Promise<UserProfile | null> {
-  const supabase = getSupabaseAdmin();
+async function readProfileWithSession(
+  userId: string,
+): Promise<UserProfile | null> {
+  const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, fpl_entry_id, created_at, updated_at")
+    .select(PROFILE_COLUMNS)
     .eq("id", userId)
     .maybeSingle();
 
@@ -60,48 +64,120 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
   return (data as UserProfile | null) ?? null;
 }
 
+export async function getUserProfile(userId: string): Promise<UserProfile | null> {
+  try {
+    return await readProfileWithSession(userId);
+  } catch {
+    if (!isDatabaseConfigured()) {
+      throw new AuthError("Database is not configured.");
+    }
+
+    const supabase = getSupabaseAdmin();
+    const { data, error } = await supabase
+      .from("profiles")
+      .select(PROFILE_COLUMNS)
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (error) {
+      throw new AuthError(`Failed to load profile: ${error.message}`);
+    }
+
+    return (data as UserProfile | null) ?? null;
+  }
+}
+
+async function createProfileWithSession(
+  userId: string,
+  bootstrapEntryId: number | null,
+): Promise<UserProfile | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("profiles")
+    .insert({
+      id: userId,
+      fpl_entry_id: bootstrapEntryId,
+    })
+    .select(PROFILE_COLUMNS)
+    .single();
+
+  if (error) {
+    return null;
+  }
+
+  return data as UserProfile;
+}
+
+async function createProfileWithAdmin(
+  userId: string,
+  bootstrapEntryId: number | null,
+): Promise<UserProfile> {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("profiles")
+    .insert({
+      id: userId,
+      fpl_entry_id: bootstrapEntryId,
+    })
+    .select(PROFILE_COLUMNS)
+    .single();
+
+  if (error) {
+    throw new AuthError(`Failed to create profile: ${error.message}`);
+  }
+
+  return data as UserProfile;
+}
+
+async function updateProfileFplEntryWithSession(
+  userId: string,
+  bootstrapEntryId: number,
+): Promise<UserProfile> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({
+      fpl_entry_id: bootstrapEntryId,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", userId)
+    .select(PROFILE_COLUMNS)
+    .single();
+
+  if (error) {
+    throw new AuthError(`Failed to update profile: ${error.message}`);
+  }
+
+  return data as UserProfile;
+}
+
 export async function ensureUserProfile(user: User): Promise<UserProfile> {
-  const existing = await getUserProfile(user.id);
+  let existing = await readProfileWithSession(user.id);
   if (existing?.fpl_entry_id) {
     return existing;
   }
 
   const bootstrapEntryId = getBootstrapFplEntryId();
-  const supabase = getSupabaseAdmin();
 
   if (!existing) {
-    const { data, error } = await supabase
-      .from("profiles")
-      .insert({
-        id: user.id,
-        fpl_entry_id: bootstrapEntryId,
-      })
-      .select("id, fpl_entry_id, created_at, updated_at")
-      .single();
+    const created =
+      (await createProfileWithSession(user.id, bootstrapEntryId)) ??
+      (await createProfileWithAdmin(user.id, bootstrapEntryId).catch(() => null));
 
-    if (error) {
-      throw new AuthError(`Failed to create profile: ${error.message}`);
+    if (created) {
+      existing = created;
+      if (existing.fpl_entry_id || !bootstrapEntryId) {
+        return existing;
+      }
+    } else {
+      throw new AuthError(
+        "Profile not found after sign-in. Run supabase/migrations/004_auth_profiles.sql in Supabase.",
+      );
     }
-
-    return data as UserProfile;
   }
 
   if (!existing.fpl_entry_id && bootstrapEntryId) {
-    const { data, error } = await supabase
-      .from("profiles")
-      .update({
-        fpl_entry_id: bootstrapEntryId,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", user.id)
-      .select("id, fpl_entry_id, created_at, updated_at")
-      .single();
-
-    if (error) {
-      throw new AuthError(`Failed to update profile: ${error.message}`);
-    }
-
-    return data as UserProfile;
+    return updateProfileFplEntryWithSession(user.id, bootstrapEntryId);
   }
 
   return existing;
