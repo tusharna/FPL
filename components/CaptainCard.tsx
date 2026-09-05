@@ -1,4 +1,4 @@
-import { Crown, ShieldAlert, Sparkles, Star } from "lucide-react";
+import { Crown, ShieldAlert, Sparkles } from "lucide-react";
 import { Fixture } from "@/components/Fixture";
 import { Badge } from "@/components/ui/Badge";
 import { Panel } from "@/components/ui/Panel";
