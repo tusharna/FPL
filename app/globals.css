@@ -1,10 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --background: #070b14;
+  --background: #06090e;
   --foreground: #f4f7fb;
-  --pitch-dark: #0d5c32;
-  --pitch-light: #157a42;
+  --pitch-grass-1: #0b4522;
+  --pitch-grass-2: #0e542a;
+  --pitch-line: rgba(255, 255, 255, 0.22);
 }
 
 @theme inline {
@@ -16,22 +17,25 @@
 
 html {
   background: var(--background);
+  color-scheme: dark;
 }
 
 body {
   min-height: 100%;
   color: var(--foreground);
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: -0.01em;
 }
 
+/* Ambient app background with multi-tiered atmospheric lighting */
 .app-shell {
   position: relative;
   isolation: isolate;
-  min-height: 100%;
+  min-height: 100vh;
   background:
-    radial-gradient(1200px 600px at 12% -10%, rgba(52, 211, 153, 0.16), transparent 55%),
-    radial-gradient(900px 500px at 100% 0%, rgba(251, 191, 36, 0.1), transparent 50%),
-    radial-gradient(800px 500px at 80% 100%, rgba(16, 185, 129, 0.08), transparent 50%),
+    radial-gradient(1400px 700px at 15% -10%, rgba(16, 185, 129, 0.12), transparent 60%),
+    radial-gradient(1000px 600px at 90% 5%, rgba(56, 189, 248, 0.08), transparent 55%),
+    radial-gradient(1200px 800px at 50% 100%, rgba(99, 102, 241, 0.07), transparent 60%),
     var(--background);
 }
 
@@ -41,58 +45,265 @@ body {
   position: absolute;
   inset: 0;
   z-index: -1;
-  opacity: 0.35;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cpath d='M56 0H0v56' fill='none' stroke='%23ffffff' stroke-opacity='0.03'/%3E%3C/svg%3E");
+  opacity: 0.4;
+  background-image:
+    radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 32px 32px;
 }
 
-.bg-pitch {
+/* Authentic Tactical Football Pitch */
+.tactical-pitch {
   position: relative;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 18%),
+    /* Stadium overhead spotlights */
+    radial-gradient(ellipse 90% 40% at 50% 0%, rgba(255, 255, 255, 0.12), transparent 70%),
+    radial-gradient(ellipse 60% 60% at 50% 50%, rgba(52, 211, 153, 0.06), transparent 80%),
+    /* Alternating cut grass lawn bands */
     repeating-linear-gradient(
       to bottom,
-      var(--pitch-light) 0,
-      var(--pitch-light) 12.5%,
-      var(--pitch-dark) 12.5%,
-      var(--pitch-dark) 25%
+      var(--pitch-grass-1) 0,
+      var(--pitch-grass-1) 36px,
+      var(--pitch-grass-2) 36px,
+      var(--pitch-grass-2) 72px
     );
+  box-shadow:
+    inset 0 2px 24px rgba(0, 0, 0, 0.6),
+    inset 0 0 100px rgba(0, 0, 0, 0.45);
 }
 
-.bg-pitch::before {
-  content: "";
+/* Pitch Field Markings */
+.pitch-boundary {
   position: absolute;
-  inset: 10% 18%;
-  border: 2px solid rgba(255, 255, 255, 0.22);
-  border-radius: 8px;
+  inset: 16px 14px;
+  border: 2px solid var(--pitch-line);
+  border-radius: 6px;
   pointer-events: none;
 }
 
-.bg-pitch::after {
-  content: "";
+@media (min-width: 640px) {
+  .pitch-boundary {
+    inset: 24px 20px;
+  }
+}
+
+/* Halfway Line */
+.pitch-halfway {
   position: absolute;
-  left: 50%;
   top: 50%;
-  width: 22%;
-  aspect-ratio: 1;
-  transform: translate(-50%, -50%);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 999px;
+  left: 14px;
+  right: 14px;
+  height: 2px;
+  background: var(--pitch-line);
+  transform: translateY(-50%);
   pointer-events: none;
 }
 
-.player-shirt {
-  clip-path: polygon(
-    22% 8%,
-    38% 18%,
-    62% 18%,
-    78% 8%,
-    92% 18%,
-    88% 38%,
-    100% 38%,
-    92% 100%,
-    8% 100%,
-    0 38%,
-    12% 38%,
-    8% 18%
-  );
+@media (min-width: 640px) {
+  .pitch-halfway {
+    left: 20px;
+    right: 20px;
+  }
 }
+
+/* Center Circle */
+.pitch-center-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 140px;
+  height: 140px;
+  transform: translate(-50%, -50%);
+  border: 2px solid var(--pitch-line);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.pitch-center-spot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  transform: translate(-50%, -50%);
+  background: var(--pitch-line);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Goal & Penalty Areas (Top) */
+.pitch-penalty-top {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 52%;
+  max-width: 280px;
+  height: 80px;
+  border: 2px solid var(--pitch-line);
+  border-top: none;
+  pointer-events: none;
+}
+
+@media (min-width: 640px) {
+  .pitch-penalty-top {
+    top: 24px;
+    height: 100px;
+  }
+}
+
+.pitch-goal-top {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 26%;
+  max-width: 140px;
+  height: 34px;
+  border: 2px solid var(--pitch-line);
+  border-top: none;
+  pointer-events: none;
+}
+
+@media (min-width: 640px) {
+  .pitch-goal-top {
+    top: 24px;
+    height: 42px;
+  }
+}
+
+/* Goal & Penalty Areas (Bottom) */
+.pitch-penalty-bottom {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 52%;
+  max-width: 280px;
+  height: 80px;
+  border: 2px solid var(--pitch-line);
+  border-bottom: none;
+  pointer-events: none;
+}
+
+@media (min-width: 640px) {
+  .pitch-penalty-bottom {
+    bottom: 24px;
+    height: 100px;
+  }
+}
+
+.pitch-goal-bottom {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 26%;
+  max-width: 140px;
+  height: 34px;
+  border: 2px solid var(--pitch-line);
+  border-bottom: none;
+  pointer-events: none;
+}
+
+@media (min-width: 640px) {
+  .pitch-goal-bottom {
+    bottom: 24px;
+    height: 42px;
+  }
+}
+
+/* Corner Arcs */
+.pitch-corner-tl {
+  position: absolute;
+  top: 16px;
+  left: 14px;
+  width: 16px;
+  height: 16px;
+  border-bottom: 2px solid var(--pitch-line);
+  border-right: 2px solid var(--pitch-line);
+  border-bottom-right-radius: 16px;
+  pointer-events: none;
+}
+
+.pitch-corner-tr {
+  position: absolute;
+  top: 16px;
+  right: 14px;
+  width: 16px;
+  height: 16px;
+  border-bottom: 2px solid var(--pitch-line);
+  border-left: 2px solid var(--pitch-line);
+  border-bottom-left-radius: 16px;
+  pointer-events: none;
+}
+
+.pitch-corner-bl {
+  position: absolute;
+  bottom: 16px;
+  left: 14px;
+  width: 16px;
+  height: 16px;
+  border-top: 2px solid var(--pitch-line);
+  border-right: 2px solid var(--pitch-line);
+  border-top-right-radius: 16px;
+  pointer-events: none;
+}
+
+.pitch-corner-br {
+  position: absolute;
+  bottom: 16px;
+  right: 14px;
+  width: 16px;
+  height: 16px;
+  border-top: 2px solid var(--pitch-line);
+  border-left: 2px solid var(--pitch-line);
+  border-top-left-radius: 16px;
+  pointer-events: none;
+}
+
+@media (min-width: 640px) {
+  .pitch-corner-tl { top: 24px; left: 20px; width: 22px; height: 22px; }
+  .pitch-corner-tr { top: 24px; right: 20px; width: 22px; height: 22px; }
+  .pitch-corner-bl { bottom: 24px; left: 20px; width: 22px; height: 22px; }
+  .pitch-corner-br { bottom: 24px; right: 20px; width: 22px; height: 22px; }
+}
+
+/* Glassmorphism & UI utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.035);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+}
+
+.glass-panel-glow {
+  position: relative;
+}
+
+.glass-panel-glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+
+/* Metallic Captain / Vice Foil Badges */
+.captain-foil {
+  background: linear-gradient(135deg, #fde047 0%, #eab308 50%, #ca8a04 100%);
+  color: #1a1300;
+  box-shadow:
+    0 0 14px rgba(250, 204, 21, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.6);
+}
+
+.vice-foil {
+  background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #94a3b8 100%);
+  color: #0f172a;
+  box-shadow:
+    0 0 12px rgba(203, 213, 225, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.8);
+}
+

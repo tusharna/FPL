@@ -8,9 +8,10 @@ type PanelProps = {
 export function Panel({ children, className = "" }: PanelProps) {
   return (
     <section
-      className={`overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] shadow-[0_20px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl ${className}`}
+      className={`relative overflow-hidden rounded-3xl border border-white/[0.09] bg-white/[0.03] shadow-[0_24px_64px_rgba(0,0,0,0.4)] backdrop-blur-2xl transition-all duration-300 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-linear-to-r before:from-transparent before:via-white/20 before:to-transparent ${className}`}
     >
       {children}
     </section>
   );
 }
+

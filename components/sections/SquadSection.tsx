@@ -11,20 +11,18 @@ type SquadSectionProps = {
 export function SquadSection({ data }: SquadSectionProps) {
   return (
     <div className="flex flex-col gap-6">
+      {/* 1. Captaincy Command Showcase */}
       <CaptainCard captain={data.captain} viceCaptain={data.viceCaptain} />
 
-      <section className="space-y-3">
-        <div className="px-1">
-          <h2 className="text-sm font-semibold text-white">Your team</h2>
-          <p className="mt-1 text-xs text-white/45">
-            Formation is generated from your current FPL picks
-          </p>
-        </div>
-        <Pitch startingXi={data.startingXi} />
-      </section>
+      {/* 2. Tactical Stadium Pitch Lineup */}
+      <Pitch startingXi={data.startingXi} />
 
+      {/* 3. Dugout & Reserves Bench */}
       <Bench bench={data.bench} />
+
+      {/* 4. Complete Starting XI Table with Totals */}
       <Squad startingXi={data.startingXi} />
     </div>
   );
 }
+
