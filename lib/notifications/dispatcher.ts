@@ -1,3 +1,4 @@
+import { isDatabaseConfigured } from "@/lib/db/client";
 import { formatEmailSubject, formatSmsMessage, selectChannels } from "./channels";
 import { renderNotificationEmailHtml } from "./email-template";
 import { shouldDelayDelivery } from "./quiet-hours";
@@ -33,7 +34,7 @@ export async function dispatchNotification(
 ): Promise<DispatchResult> {
   const event = await createNotificationEvent(entryId, notification);
 
-  if (!event) {
+  if (!event && isDatabaseConfigured()) {
     return { notificationId: null, deliveries: [], skipped: true };
   }
 
@@ -41,7 +42,7 @@ export async function dispatchNotification(
   const deliveries: DispatchResult["deliveries"] = [];
 
   if (channels.length === 0) {
-    return { notificationId: event.id, deliveries, skipped: false };
+    return { notificationId: event?.id ?? null, deliveries, skipped: false };
   }
 
   const delay = shouldDelayDelivery(notification.severity, preferences);
@@ -52,14 +53,16 @@ export async function dispatchNotification(
         ? resolveEmailDestination(preferences.emailDestination)
         : resolveSmsDestination(preferences.smsDestination);
 
-    const delivery = await createDelivery(
-      event.id,
-      channel,
-      destination,
-      delay ? "DELAYED" : "PENDING",
-    );
+    const delivery = event
+      ? await createDelivery(
+          event.id,
+          channel,
+          destination,
+          delay ? "DELAYED" : "PENDING",
+        )
+      : null;
 
-    if (!delivery) {
+    if (event && !delivery) {
       continue;
     }
 
@@ -69,10 +72,12 @@ export async function dispatchNotification(
     }
 
     if (!destination) {
-      await updateDelivery(delivery.id, {
-        status: "FAILED",
-        errorMessage: `No ${channel} destination configured.`,
-      });
+      if (delivery) {
+        await updateDelivery(delivery.id, {
+          status: "FAILED",
+          errorMessage: `No ${channel} destination configured.`,
+        });
+      }
       deliveries.push({
         channel,
         status: "FAILED",
@@ -90,10 +95,12 @@ export async function dispatchNotification(
           text: notification.message,
           html: renderNotificationEmailHtml(notification),
         });
-        await updateDelivery(delivery.id, {
-          status: "SENT",
-          providerMessageId: result.providerMessageId,
-        });
+        if (delivery) {
+          await updateDelivery(delivery.id, {
+            status: "SENT",
+            providerMessageId: result.providerMessageId,
+          });
+        }
         deliveries.push({ channel, status: "SENT" });
       } else {
         const smsProvider = createSMSProvider();
@@ -101,23 +108,27 @@ export async function dispatchNotification(
           to: destination,
           message: formatSmsMessage(notification),
         });
-        await updateDelivery(delivery.id, {
-          status: "SENT",
-          providerMessageId: result.providerMessageId,
-        });
+        if (delivery) {
+          await updateDelivery(delivery.id, {
+            status: "SENT",
+            providerMessageId: result.providerMessageId,
+          });
+        }
         deliveries.push({ channel, status: "SENT" });
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Delivery failed";
-      await updateDelivery(delivery.id, {
-        status: "FAILED",
-        errorMessage: message,
-      });
+      if (delivery) {
+        await updateDelivery(delivery.id, {
+          status: "FAILED",
+          errorMessage: message,
+        });
+      }
       deliveries.push({ channel, status: "FAILED", error: message });
     }
   }
 
-  return { notificationId: event.id, deliveries, skipped: false };
+  return { notificationId: event?.id ?? null, deliveries, skipped: false };
 }
 
 export async function dispatchNotifications(

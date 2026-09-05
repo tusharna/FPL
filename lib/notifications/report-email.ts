@@ -59,7 +59,27 @@ export async function sendManualReportEmail(
     const result = await dispatchNotification(entryId, notification, preferences);
     const emailDelivery = result.deliveries.find((d) => d.channel === "EMAIL");
 
+    if (result.skipped && !emailDelivery) {
+      return {
+        sent: false,
+        skipped:
+          "Notification was skipped (duplicate or database could not record the event).",
+        notificationId: result.notificationId,
+      };
+    }
+
     if (emailDelivery?.status === "SENT") {
+      const provider = (
+        process.env.NOTIFICATION_EMAIL_PROVIDER ?? "console"
+      ).toLowerCase();
+      if (provider === "console") {
+        return {
+          sent: false,
+          skipped:
+            "Email provider is set to console — logs only, no real email. Set NOTIFICATION_EMAIL_PROVIDER=resend on Vercel.",
+          notificationId: result.notificationId,
+        };
+      }
       return { sent: true, notificationId: result.notificationId };
     }
 
