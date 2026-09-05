@@ -1,4 +1,3 @@
-import { getEntryId } from "@/lib/fpl/client";
 import { getSupabaseAdmin, isDatabaseConfigured } from "@/lib/db/client";
 import {
   TABLES,
@@ -72,7 +71,7 @@ async function loadGameweeks(ids: number[]): Promise<GameweekRow[]> {
 }
 
 export async function loadHistoryOverview(
-  entryId = getEntryId(),
+  entryId: number,
 ): Promise<HistoryOverview | null> {
   if (!isDatabaseConfigured()) {
     return null;
@@ -120,7 +119,7 @@ export async function loadHistoryOverview(
 
 export async function loadGameweekDetail(
   gameweekId: number,
-  entryId = getEntryId(),
+  entryId: number,
 ): Promise<GameweekDetail | null> {
   if (!isDatabaseConfigured()) {
     return null;
@@ -251,7 +250,7 @@ async function loadGameweekDetailData(
 
 export async function loadStoredReport(
   gameweekId: number,
-  entryId = getEntryId(),
+  entryId: number,
 ) {
   const detail = await loadGameweekDetail(gameweekId, entryId);
   if (!detail?.report) {

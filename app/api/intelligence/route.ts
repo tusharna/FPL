@@ -1,10 +1,16 @@
-import { getDashboardData } from "@/lib/fpl/dashboard-data";
+import { requireApiAuth } from "@/lib/auth/api";
+import { getAuthenticatedDashboardData } from "@/lib/fpl/dashboard-data";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const auth = await requireApiAuth();
+  if (auth instanceof Response) {
+    return auth;
+  }
+
   try {
-    const data = await getDashboardData();
+    const data = await getAuthenticatedDashboardData();
     return Response.json({
       gameweek: data.analysis.gameweek,
       intelligence: data.intelligence,

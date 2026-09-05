@@ -8,6 +8,7 @@ import {
   UserRound,
   Wallet,
 } from "lucide-react";
+import { UserMenu } from "@/components/auth/UserMenu";
 import { DashboardNav } from "@/components/DashboardNav";
 import { Badge } from "@/components/ui/Badge";
 import { StatCard } from "@/components/ui/StatCard";
@@ -16,10 +17,17 @@ import type { DashboardPayload } from "@/lib/fpl/dashboard-data";
 
 type DashboardShellProps = {
   data: DashboardPayload;
+  userEmail: string | null;
+  userDisplayName?: string | null;
   children: ReactNode;
 };
 
-export function DashboardShell({ data, children }: DashboardShellProps) {
+export function DashboardShell({
+  data,
+  userEmail,
+  userDisplayName,
+  children,
+}: DashboardShellProps) {
   const { manager, gameweek } = data;
 
   // Manager avatar initials
@@ -41,7 +49,7 @@ export function DashboardShell({ data, children }: DashboardShellProps) {
         <div className="pointer-events-none absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-cyan-500/10 blur-3xl" />
 
         <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
+          <div className="flex-1">
             {/* Top Badge Row */}
             <div className="flex flex-wrap items-center gap-2.5">
               <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-bold text-emerald-300 ring-1 ring-emerald-500/30">
@@ -84,12 +92,15 @@ export function DashboardShell({ data, children }: DashboardShellProps) {
             </div>
           </div>
 
-          {/* Quick Info Box */}
-          <div className="max-w-sm rounded-2xl border border-emerald-400/20 bg-emerald-500/[0.06] p-4 text-xs text-emerald-100/90 backdrop-blur-md shadow-[0_8px_24px_rgba(16,185,129,0.1)]">
-            <p className="font-semibold text-emerald-300">Live Team Snapshot</p>
-            <p className="mt-1 leading-relaxed text-emerald-100/75">
-              Live squad picks, deterministic decision engine recommendations, and AI tactical insights synced with the official FPL engine.
-            </p>
+          <div className="flex flex-col items-stretch gap-4 lg:items-end">
+            <UserMenu email={userEmail} displayName={userDisplayName} />
+            {/* Quick Info Box */}
+            <div className="max-w-sm rounded-2xl border border-emerald-400/20 bg-emerald-500/[0.06] p-4 text-xs text-emerald-100/90 backdrop-blur-md shadow-[0_8px_24px_rgba(16,185,129,0.1)]">
+              <p className="font-semibold text-emerald-300">Live Team Snapshot</p>
+              <p className="mt-1 leading-relaxed text-emerald-100/75">
+                Live squad picks, deterministic decision engine recommendations, and AI tactical insights synced with the official FPL engine.
+              </p>
+            </div>
           </div>
         </div>
       </header>

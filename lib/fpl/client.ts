@@ -91,13 +91,14 @@ export async function fplGet<T>(
   throw lastError;
 }
 
+/** Background jobs (cron) only — user-facing code must use getAuthenticatedFplEntryId(). */
 export function getEntryId(): number {
-  const raw = process.env.FPL_ENTRY_ID;
+  const raw = process.env.FPL_ENTRY_ID ?? process.env.FPL_BOOTSTRAP_ENTRY_ID;
   const parsed = Number(raw);
 
   if (!raw || Number.isNaN(parsed) || parsed <= 0) {
     throw new FplApiError(
-      "FPL_ENTRY_ID is missing or invalid. Set it in .env.local.",
+      "FPL_ENTRY_ID is missing or invalid. Set it in .env.local for cron jobs.",
     );
   }
 

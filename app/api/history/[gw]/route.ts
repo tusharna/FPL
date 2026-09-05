@@ -1,4 +1,5 @@
 import { ingestActualResults, loadGameweekDetail } from "@/lib/history";
+import { requireApiAuth } from "@/lib/auth/api";
 import { isDatabaseConfigured } from "@/lib/db/client";
 
 export const dynamic = "force-dynamic";
@@ -8,6 +9,11 @@ type RouteContext = {
 };
 
 export async function GET(_request: Request, context: RouteContext) {
+  const auth = await requireApiAuth();
+  if (auth instanceof Response) {
+    return auth;
+  }
+
   if (!isDatabaseConfigured()) {
     return Response.json(
       {
@@ -25,7 +31,7 @@ export async function GET(_request: Request, context: RouteContext) {
   }
 
   try {
-    const detail = await loadGameweekDetail(gameweekId);
+    const detail = await loadGameweekDetail(gameweekId, auth.entryId);
     if (!detail) {
       return Response.json({ error: "Gameweek not found." }, { status: 404 });
     }
@@ -37,6 +43,11 @@ export async function GET(_request: Request, context: RouteContext) {
 }
 
 export async function POST(_request: Request, context: RouteContext) {
+  const auth = await requireApiAuth();
+  if (auth instanceof Response) {
+    return auth;
+  }
+
   if (!isDatabaseConfigured()) {
     return Response.json({ error: "Database is not configured." }, { status: 503 });
   }

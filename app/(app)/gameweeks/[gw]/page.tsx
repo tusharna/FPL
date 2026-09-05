@@ -9,6 +9,7 @@ import { RecommendationComparison } from "@/components/history/RecommendationCom
 import { Badge } from "@/components/ui/Badge";
 import { Panel } from "@/components/ui/Panel";
 import { formatDeadline } from "@/lib/format";
+import { getAuthenticatedFplEntryId } from "@/lib/auth/user";
 import { loadGameweekDetail } from "@/lib/history";
 import { isDatabaseConfigured } from "@/lib/db/client";
 
@@ -29,7 +30,8 @@ export default async function GameweekDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  const detail = await loadGameweekDetail(gameweekId);
+  const entryId = await getAuthenticatedFplEntryId();
+  const detail = await loadGameweekDetail(gameweekId, entryId);
   if (!detail) {
     notFound();
   }

@@ -76,6 +76,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FPL_ENTRY_ID: "3944035"
+      FPL_BOOTSTRAP_ENTRY_ID: "3944035"
+      NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co"
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

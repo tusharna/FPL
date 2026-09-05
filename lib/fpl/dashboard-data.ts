@@ -1,10 +1,10 @@
 import { cache } from "react";
 import { analyzeGameweek } from "@/lib/analysis/team";
 import type { GameweekAnalysis } from "@/lib/analysis/types";
+import { getAuthenticatedFplEntryId } from "@/lib/auth/user";
 import { runIntelligencePipeline } from "@/lib/intelligence";
 import type { IntelligenceBundle } from "@/lib/intelligence/types";
 import { getBootstrapStatic } from "./bootstrap";
-import { getEntryId } from "./client";
 import { getEntry } from "./entry";
 import { getFixtures } from "./fixtures";
 import { detectGameweek } from "./gameweek";
@@ -25,7 +25,7 @@ export type DashboardPayload = DashboardData & {
 };
 
 export const getDashboardData = cache(async function getDashboardData(
-  entryId = getEntryId(),
+  entryId: number,
 ): Promise<DashboardPayload> {
   const [bootstrap, fixtures] = await Promise.all([
     getBootstrapStatic(),
@@ -127,3 +127,10 @@ export const getDashboardData = cache(async function getDashboardData(
     intelligence,
   };
 });
+
+export const getAuthenticatedDashboardData = cache(
+  async function getAuthenticatedDashboardData(): Promise<DashboardPayload> {
+    const entryId = await getAuthenticatedFplEntryId();
+    return getDashboardData(entryId);
+  },
+);

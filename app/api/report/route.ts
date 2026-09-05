@@ -1,7 +1,8 @@
 import { currentAnalysisPlayers, toAIReportInput } from "@/lib/ai/input";
 import { generateGameweekReport, publicErrorMessage } from "@/lib/ai/report";
+import { requireApiAuth } from "@/lib/auth/api";
 import { getBootstrapStatic } from "@/lib/fpl/bootstrap";
-import { getDashboardData } from "@/lib/fpl/dashboard-data";
+import { getAuthenticatedDashboardData } from "@/lib/fpl/dashboard-data";
 import { indexById, normalizePlayer } from "@/lib/fpl/normalize";
 import {
   loadStoredReport,
@@ -13,13 +14,18 @@ import { sendManualReportEmail } from "@/lib/notifications/report-email";
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
+  const auth = await requireApiAuth();
+  if (auth instanceof Response) {
+    return auth;
+  }
+
   try {
     const url = new URL(request.url);
     const storedOnly = url.searchParams.get("stored") === "true";
 
     if (storedOnly && isDatabaseConfigured()) {
-      const data = await getDashboardData();
-      const stored = await loadStoredReport(data.analysis.gameweek, data.entryId);
+      const data = await getAuthenticatedDashboardData();
+      const stored = await loadStoredReport(data.analysis.gameweek, auth.entryId);
       if (stored) {
         return Response.json(stored);
       }
@@ -27,7 +33,7 @@ export async function GET(request: Request) {
     }
 
     const [data, bootstrap] = await Promise.all([
-      getDashboardData(),
+      getAuthenticatedDashboardData(),
       getBootstrapStatic(),
     ]);
 
@@ -59,7 +65,7 @@ export async function GET(request: Request) {
       allPlayers,
     });
 
-    const email = await sendManualReportEmail(data.entryId, data, result);
+    const email = await sendManualReportEmail(auth.entryId, data, result);
 
     return Response.json({
       gameweek: data.analysis.gameweek,

@@ -1,6 +1,7 @@
 import type { AIReport } from "@/lib/ai/types";
 
 export const TABLES = {
+  profiles: "profiles",
   managers: "managers",
   gameweeks: "gameweeks",
   playersSnapshot: "players_snapshot",
@@ -18,6 +19,13 @@ export const TABLES = {
   notificationDeliveries: "notification_deliveries",
   notificationState: "notification_state",
 } as const;
+
+export type ProfileRow = {
+  id: string;
+  fpl_entry_id: number | null;
+  created_at: string;
+  updated_at: string;
+};
 
 export type ManagerRow = {
   id: number;

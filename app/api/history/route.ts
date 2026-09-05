@@ -1,9 +1,15 @@
 import { loadHistoryOverview } from "@/lib/history";
+import { requireApiAuth } from "@/lib/auth/api";
 import { isDatabaseConfigured } from "@/lib/db/client";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const auth = await requireApiAuth();
+  if (auth instanceof Response) {
+    return auth;
+  }
+
   if (!isDatabaseConfigured()) {
     return Response.json(
       {
@@ -15,7 +21,7 @@ export async function GET() {
   }
 
   try {
-    const overview = await loadHistoryOverview();
+    const overview = await loadHistoryOverview(auth.entryId);
     return Response.json(overview);
   } catch (error) {
     console.error("History overview failed:", error);
