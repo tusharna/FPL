@@ -5,12 +5,8 @@
       "schedule": "0 8 * * 5"
     },
     {
-      "path": "/api/cron/deadline-check",
-      "schedule": "0 * * * *"
-    },
-    {
-      "path": "/api/cron/intelligence-check",
-      "schedule": "*/30 * * * *"
+      "path": "/api/cron/daily-check",
+      "schedule": "0 8 * * *"
     }
   ]
 }
