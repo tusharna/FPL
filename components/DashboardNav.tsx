@@ -34,7 +34,10 @@ export function DashboardNav() {
     >
       <ul className="flex min-w-max items-center gap-1.5">
         {DASHBOARD_SECTIONS.map((section) => {
-          const active = pathname === section.href || pathname.startsWith(`${section.href}/`);
+          const active =
+            pathname === section.href ||
+            pathname.startsWith(`${section.href}/`) ||
+            (section.href.startsWith("/settings") && pathname.startsWith("/settings"));
           const Icon = SECTION_ICONS[section.href] || Users;
 
           return (

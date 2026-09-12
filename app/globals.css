@@ -1,11 +1,81 @@
 @import "tailwindcss";
 
-:root {
+:root,
+[data-theme="midnight"] {
   --background: #06090e;
   --foreground: #f4f7fb;
   --pitch-grass-1: #0b4522;
   --pitch-grass-2: #0e542a;
   --pitch-line: rgba(255, 255, 255, 0.22);
+  --ambient-1: rgba(16, 185, 129, 0.14);
+  --ambient-2: rgba(56, 189, 248, 0.09);
+  --ambient-3: rgba(99, 102, 241, 0.07);
+  --card-bg: rgba(255, 255, 255, 0.035);
+  --card-border: rgba(255, 255, 255, 0.09);
+  --card-glow: rgba(16, 185, 129, 0.15);
+  --theme-accent: #10b981;
+}
+
+[data-theme="premier-league"] {
+  --background: #120224;
+  --foreground: #fcfaff;
+  --pitch-grass-1: #07391c;
+  --pitch-grass-2: #0a4723;
+  --pitch-line: rgba(255, 255, 255, 0.22);
+  --ambient-1: rgba(233, 0, 82, 0.18);
+  --ambient-2: rgba(0, 255, 135, 0.13);
+  --ambient-3: rgba(147, 51, 234, 0.15);
+  --card-bg: rgba(255, 255, 255, 0.04);
+  --card-border: rgba(233, 0, 82, 0.2);
+  --card-glow: rgba(233, 0, 82, 0.25);
+  --theme-accent: #00ff87;
+}
+
+[data-theme="champions"] {
+  --background: #0a0b0e;
+  --foreground: #fef9ee;
+  --pitch-grass-1: #0c381d;
+  --pitch-grass-2: #104725;
+  --pitch-line: rgba(254, 243, 199, 0.22);
+  --ambient-1: rgba(234, 179, 8, 0.15);
+  --ambient-2: rgba(245, 158, 11, 0.11);
+  --ambient-3: rgba(217, 119, 6, 0.08);
+  --card-bg: rgba(255, 255, 255, 0.035);
+  --card-border: rgba(234, 179, 8, 0.2);
+  --card-glow: rgba(234, 179, 8, 0.2);
+  --theme-accent: #eab308;
+}
+
+[data-theme="ocean"] {
+  --background: #030c1b;
+  --foreground: #f0f9ff;
+  --pitch-grass-1: #073d32;
+  --pitch-grass-2: #0b4c3e;
+  --pitch-line: rgba(255, 255, 255, 0.22);
+  --ambient-1: rgba(56, 189, 248, 0.15);
+  --ambient-2: rgba(99, 102, 241, 0.12);
+  --ambient-3: rgba(14, 165, 233, 0.09);
+  --card-bg: rgba(255, 255, 255, 0.035);
+  --card-border: rgba(56, 189, 248, 0.2);
+  --card-glow: rgba(56, 189, 248, 0.2);
+  --theme-accent: #38bdf8;
+}
+
+[data-theme="daylight"],
+html.light {
+  --background: #f4f6fa;
+  --foreground: #090d16;
+  --pitch-grass-1: #15803d;
+  --pitch-grass-2: #166534;
+  --pitch-line: rgba(255, 255, 255, 0.35);
+  --ambient-1: rgba(16, 185, 129, 0.09);
+  --ambient-2: rgba(56, 189, 248, 0.08);
+  --ambient-3: rgba(99, 102, 241, 0.06);
+  --card-bg: rgba(255, 255, 255, 0.92);
+  --card-border: rgba(15, 23, 42, 0.08);
+  --card-glow: rgba(16, 185, 129, 0.1);
+  --theme-accent: #059669;
+  color-scheme: light;
 }
 
 @theme inline {
@@ -17,7 +87,7 @@
 
 html {
   background: var(--background);
-  color-scheme: dark;
+  transition: background-color 0.3s ease;
 }
 
 body {
@@ -25,6 +95,7 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   letter-spacing: -0.01em;
+  transition: color 0.3s ease;
 }
 
 /* Ambient app background with multi-tiered atmospheric lighting */
@@ -33,10 +104,11 @@ body {
   isolation: isolate;
   min-height: 100vh;
   background:
-    radial-gradient(1400px 700px at 15% -10%, rgba(16, 185, 129, 0.12), transparent 60%),
-    radial-gradient(1000px 600px at 90% 5%, rgba(56, 189, 248, 0.08), transparent 55%),
-    radial-gradient(1200px 800px at 50% 100%, rgba(99, 102, 241, 0.07), transparent 60%),
+    radial-gradient(1400px 700px at 15% -10%, var(--ambient-1), transparent 60%),
+    radial-gradient(1000px 600px at 90% 5%, var(--ambient-2), transparent 55%),
+    radial-gradient(1200px 800px at 50% 100%, var(--ambient-3), transparent 60%),
     var(--background);
+  transition: background 0.4s ease;
 }
 
 .app-shell::before {
@@ -69,6 +141,7 @@ body {
   box-shadow:
     inset 0 2px 24px rgba(0, 0, 0, 0.6),
     inset 0 0 100px rgba(0, 0, 0, 0.45);
+  transition: background 0.4s ease;
 }
 
 /* Pitch Field Markings */
@@ -270,11 +343,12 @@ body {
 
 /* Glassmorphism & UI utilities */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.035);
+  background: var(--card-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--card-border);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .glass-panel-glow {
@@ -307,3 +381,128 @@ body {
     inset 0 1px 1px rgba(255, 255, 255, 0.8);
 }
 
+/* =========================================================================
+   LIGHT THEME (Daylight Arena) ADAPTATION
+   Transforms glass panels, cards, tables, headers, and typography to crisp
+   modern daytime stadium styling while preserving tactical pitch vibrancy.
+   ========================================================================= */
+
+html[data-theme="daylight"] .app-shell::before,
+html.light .app-shell::before {
+  opacity: 0.55;
+  background-image: radial-gradient(rgba(15, 23, 42, 0.08) 1px, transparent 1px);
+}
+
+html[data-theme="daylight"] header,
+html.light header,
+html[data-theme="daylight"] section:not(.tactical-pitch),
+html.light section:not(.tactical-pitch),
+html[data-theme="daylight"] .glass-panel,
+html.light .glass-panel,
+html[data-theme="daylight"] nav[aria-label="Dashboard sections"],
+html.light nav[aria-label="Dashboard sections"],
+html[data-theme="daylight"] .stat-card-surface,
+html.light .stat-card-surface {
+  background: var(--card-bg) !important;
+  border-color: var(--card-border) !important;
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+}
+
+/* Text adaptations outside the pitch */
+html[data-theme="daylight"] header .text-white,
+html.light header .text-white,
+html[data-theme="daylight"] section:not(.tactical-pitch) .text-white,
+html.light section:not(.tactical-pitch) .text-white,
+html[data-theme="daylight"] nav[aria-label="Dashboard sections"] .text-white,
+html.light nav[aria-label="Dashboard sections"] .text-white,
+html[data-theme="daylight"] main .text-white,
+html.light main .text-white,
+html[data-theme="daylight"] h1.text-white,
+html.light h1.text-white,
+html[data-theme="daylight"] h2.text-white,
+html.light h2.text-white,
+html[data-theme="daylight"] h3.text-white,
+html.light h3.text-white,
+html[data-theme="daylight"] p.text-white,
+html.light p.text-white {
+  color: #0f172a;
+}
+
+html[data-theme="daylight"] :not(.tactical-pitch):not(.tactical-pitch *) .text-white\/80,
+html.light :not(.tactical-pitch):not(.tactical-pitch *) .text-white\/80,
+html[data-theme="daylight"] :not(.tactical-pitch):not(.tactical-pitch *) .text-white\/75,
+html.light :not(.tactical-pitch):not(.tactical-pitch *) .text-white\/75,
+html[data-theme="daylight"] :not(.tactical-pitch):not(.tactical-pitch *) .text-white\/70,
+html.light :not(.tactical-pitch):not(.tactical-pitch *) .text-white\/70,
+html[data-theme="daylight"] :not(.tactical-pitch):not(.tactical-pitch *) .text-white\/65,
+html.light :not(.tactical-pitch):not(.tactical-pitch *) .text-white\/65 {
+  color: #334155;
+}
+
+html[data-theme="daylight"] :not(.tactical-pitch):not(.tactical-pitch *) .text-white\/60,
+html.light :not(.tactical-pitch):not(.tactical-pitch *) .text-white\/60,
+html[data-theme="daylight"] :not(.tactical-pitch):not(.tactical-pitch *) .text-white\/55,
+html.light :not(.tactical-pitch):not(.tactical-pitch *) .text-white\/55,
+html[data-theme="daylight"] :not(.tactical-pitch):not(.tactical-pitch *) .text-white\/50,
+html.light :not(.tactical-pitch):not(.tactical-pitch *) .text-white\/50,
+html[data-theme="daylight"] :not(.tactical-pitch):not(.tactical-pitch *) .text-white\/45,
+html.light :not(.tactical-pitch):not(.tactical-pitch *) .text-white\/45,
+html[data-theme="daylight"] :not(.tactical-pitch):not(.tactical-pitch *) .text-white\/40,
+html.light :not(.tactical-pitch):not(.tactical-pitch *) .text-white\/40 {
+  color: #64748b;
+}
+
+html[data-theme="daylight"] :not(.tactical-pitch):not(.tactical-pitch *) .text-white\/20,
+html.light :not(.tactical-pitch):not(.tactical-pitch *) .text-white\/20 {
+  color: #cbd5e1;
+}
+
+/* Borders in daylight */
+html[data-theme="daylight"] :not(.tactical-pitch):not(.tactical-pitch *) .border-white\/\[0\.09\],
+html.light :not(.tactical-pitch):not(.tactical-pitch *) .border-white\/\[0\.09\],
+html[data-theme="daylight"] :not(.tactical-pitch):not(.tactical-pitch *) .border-white\/\[0\.08\],
+html.light :not(.tactical-pitch):not(.tactical-pitch *) .border-white\/\[0\.08\],
+html[data-theme="daylight"] :not(.tactical-pitch):not(.tactical-pitch *) .border-white\/10,
+html.light :not(.tactical-pitch):not(.tactical-pitch *) .border-white\/10,
+html[data-theme="daylight"] :not(.tactical-pitch):not(.tactical-pitch *) .border-white\/\[0\.06\],
+html.light :not(.tactical-pitch):not(.tactical-pitch *) .border-white\/\[0\.06\],
+html[data-theme="daylight"] :not(.tactical-pitch):not(.tactical-pitch *) .border-white\/\[0\.04\],
+html.light :not(.tactical-pitch):not(.tactical-pitch *) .border-white\/\[0\.04\] {
+  border-color: rgba(15, 23, 42, 0.09);
+}
+
+/* Background fills in daylight */
+html[data-theme="daylight"] :not(.tactical-pitch):not(.tactical-pitch *) .bg-white\/\[0\.03\],
+html.light :not(.tactical-pitch):not(.tactical-pitch *) .bg-white\/\[0\.03\],
+html[data-theme="daylight"] :not(.tactical-pitch):not(.tactical-pitch *) .bg-white\/\[0\.04\],
+html.light :not(.tactical-pitch):not(.tactical-pitch *) .bg-white\/\[0\.04\],
+html[data-theme="daylight"] :not(.tactical-pitch):not(.tactical-pitch *) .bg-white\/\[0\.05\],
+html.light :not(.tactical-pitch):not(.tactical-pitch *) .bg-white\/\[0\.05\],
+html[data-theme="daylight"] :not(.tactical-pitch):not(.tactical-pitch *) .bg-white\/\[0\.02\],
+html.light :not(.tactical-pitch):not(.tactical-pitch *) .bg-white\/\[0\.02\] {
+  background-color: rgba(15, 23, 42, 0.035);
+}
+
+html[data-theme="daylight"] :not(.tactical-pitch):not(.tactical-pitch *) .ring-white\/10,
+html.light :not(.tactical-pitch):not(.tactical-pitch *) .ring-white\/10 {
+  --tw-ring-color: rgba(15, 23, 42, 0.1);
+}
+
+/* Roster Table rows */
+html[data-theme="daylight"] tbody tr:hover,
+html.light tbody tr:hover {
+  background-color: rgba(15, 23, 42, 0.03) !important;
+}
+
+html[data-theme="daylight"] thead,
+html.light thead,
+html[data-theme="daylight"] tfoot,
+html.light tfoot {
+  background-color: rgba(15, 23, 42, 0.03) !important;
+  border-color: rgba(15, 23, 42, 0.09) !important;
+}
+
+/* Pitch Tactical Banner - ensure it stays clean */
+.tactical-pitch .text-white {
+  color: #ffffff !important;
+}

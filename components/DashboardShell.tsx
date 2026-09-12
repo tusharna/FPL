@@ -11,6 +11,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { UserMenu } from "@/components/auth/UserMenu";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { DashboardNav } from "@/components/DashboardNav";
 import { Badge } from "@/components/ui/Badge";
 import { StatCard } from "@/components/ui/StatCard";
@@ -105,7 +106,10 @@ export function DashboardShell({
           </div>
 
           <div className="flex flex-col items-stretch gap-4 lg:items-end">
-            <UserMenu email={userEmail} displayName={userDisplayName} />
+            <div className="flex flex-wrap items-center justify-end gap-2.5">
+              <ThemeToggle />
+              <UserMenu email={userEmail} displayName={userDisplayName} />
+            </div>
             {/* Quick Info Box */}
             <div className="max-w-sm rounded-2xl border border-emerald-400/20 bg-emerald-500/[0.06] p-4 text-xs text-emerald-100/90 backdrop-blur-md shadow-[0_8px_24px_rgba(16,185,129,0.1)]">
               <p className="font-semibold text-emerald-300">Live Team Snapshot</p>
