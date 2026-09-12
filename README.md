@@ -2,6 +2,8 @@
 
 Live Fantasy Premier League squad dashboard, a deterministic decision engine, an optional AI explanation layer, persistent gameweek history, and live intelligence monitoring.
 
+For a full implementation guide covering architecture, all phases, auth, database schema, API reference, and more, see **[explain/APPLICATION.md](explain/APPLICATION.md)**.
+
 ## Setup
 
 ```bash
@@ -72,6 +74,13 @@ Sections:
 - `/intelligence` — live availability, fixtures, prices, and news alerts
 - `/gameweeks` — historical snapshots, evaluation, and metrics
 - `/gameweeks/[gw]` — gameweek detail with stored recommendation and report
+- `/gameweeks/[gw]/prepare` — next-gameweek planning (My Team baseline + engine)
+
+### Next gameweek planning
+
+When a gameweek is live, the dashboard shows **Prepare for GW{n}** using your current FPL squad from the authenticated My Team API (`/api/my-team/{entry_id}/`). This is separate from submitted picks for the live gameweek.
+
+Server-side FPL auth is required. Set `FPL_REFRESH_TOKEN` in `.env.local` (see `.env.example`). Log in at [fantasy.premierleague.com](https://fantasy.premierleague.com), open DevTools → Application → Local Storage, and copy the `refresh_token` from the `oidc.user:...` entry.
 
 ## Tests
 

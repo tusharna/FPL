@@ -54,6 +54,7 @@ function mockDashboardPayload(): DashboardPayload {
 
   return {
     entryId: 3944035,
+    planning: null,
     gameweek: {
       current: null,
       next: null,

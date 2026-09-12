@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import {
+  ArrowRight,
   Banknote,
   CalendarClock,
   CheckCircle2,
@@ -28,7 +30,7 @@ export function DashboardShell({
   userDisplayName,
   children,
 }: DashboardShellProps) {
-  const { manager, gameweek } = data;
+  const { manager, gameweek, planning } = data;
 
   // Manager avatar initials
   const initials = manager.managerName
@@ -67,8 +69,18 @@ export function DashboardShell({
 
             {/* Main Gameweek Heading */}
             <h1 className="mt-3.5 text-4xl font-black tracking-tight text-white sm:text-5xl">
-              Gameweek {gameweek.relevant.id}
+              {planning ? planning.headline : `Gameweek ${gameweek.relevant.id}`}
             </h1>
+
+            {planning ? (
+              <Link
+                href={planning.prepareHref}
+                className="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-200 transition hover:bg-emerald-500/20"
+              >
+                Next: {planning.subline}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            ) : null}
 
             {/* Manager Details & Deadline */}
             <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-white/70">

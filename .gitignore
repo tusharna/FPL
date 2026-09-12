@@ -34,6 +34,9 @@ yarn-error.log*
 .env*
 !.env.example
 
+# FPL OIDC refresh token (auto-updated after PingOne rotation in local dev)
+.fpl-refresh-token
+
 # vercel
 .vercel
 

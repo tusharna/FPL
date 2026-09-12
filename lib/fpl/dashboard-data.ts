@@ -9,6 +9,11 @@ import { getEntry } from "./entry";
 import { getFixtures } from "./fixtures";
 import { detectGameweek } from "./gameweek";
 import {
+  getPlanningGameweek,
+  getPlanningPreparePath,
+  type PlanningGameweekContext,
+} from "./gameweek-state";
+import {
   attachFixtures,
   classifySquad,
   indexById,
@@ -19,9 +24,17 @@ import {
 import { getPicks } from "./picks";
 import type { DashboardData, Player } from "./types";
 
+export type PlanningBanner = {
+  planningContext: PlanningGameweekContext;
+  prepareHref: string;
+  headline: string;
+  subline: string;
+};
+
 export type DashboardPayload = DashboardData & {
   analysis: GameweekAnalysis;
   intelligence: IntelligenceBundle;
+  planning: PlanningBanner | null;
 };
 
 export const getDashboardData = cache(async function getDashboardData(
@@ -106,9 +119,15 @@ export const getDashboardData = cache(async function getDashboardData(
         })
       : analysis;
 
+  const planningContext = getPlanningGameweek(bootstrap.events);
+  const planning = planningContext
+    ? buildPlanningBanner(planningContext, gameweek)
+    : null;
+
   return {
     entryId,
     gameweek,
+    planning,
     manager: {
       teamName: entry.name,
       managerName: `${entry.player_first_name} ${entry.player_last_name}`.trim(),
@@ -127,6 +146,39 @@ export const getDashboardData = cache(async function getDashboardData(
     intelligence,
   };
 });
+
+function buildPlanningBanner(
+  planningContext: PlanningGameweekContext,
+  gameweek: DashboardData["gameweek"],
+): PlanningBanner {
+  const planningGw = planningContext.planningGameweek;
+  const prepareHref = getPlanningPreparePath(planningGw.id);
+
+  if (planningContext.currentState === "IN_PROGRESS" && planningContext.currentGameweek) {
+    return {
+      planningContext,
+      prepareHref,
+      headline: `GW${planningContext.currentGameweek.id} LIVE`,
+      subline: `Prepare for GW${planningGw.id}`,
+    };
+  }
+
+  if (planningContext.planningState === "UPCOMING") {
+    return {
+      planningContext,
+      prepareHref,
+      headline: `GW${planningGw.id} UPCOMING`,
+      subline: `Prepare for GW${planningGw.id}`,
+    };
+  }
+
+  return {
+    planningContext,
+    prepareHref,
+    headline: `Gameweek ${gameweek.relevant.id}`,
+    subline: `Prepare for GW${planningGw.id}`,
+  };
+}
 
 export const getAuthenticatedDashboardData = cache(
   async function getAuthenticatedDashboardData(): Promise<DashboardPayload> {
