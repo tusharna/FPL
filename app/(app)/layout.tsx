@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { DashboardShell } from "@/components/DashboardShell";
-import { getAuthenticatedUser } from "@/lib/auth/user";
+import { LinkTeamPrompt } from "@/components/settings/LinkTeamPrompt";
+import { MissingFplEntryError, getAuthenticatedUser } from "@/lib/auth/user";
 import { getAuthenticatedDashboardData } from "@/lib/fpl/dashboard-data";
 
 export const dynamic = "force-dynamic";
@@ -10,10 +11,17 @@ export default async function AppLayout({
 }: {
   children: ReactNode;
 }) {
-  const [data, user] = await Promise.all([
-    getAuthenticatedDashboardData(),
-    getAuthenticatedUser(),
-  ]);
+  const user = await getAuthenticatedUser();
+
+  let data;
+  try {
+    data = await getAuthenticatedDashboardData();
+  } catch (error) {
+    if (error instanceof MissingFplEntryError) {
+      return <LinkTeamPrompt email={user?.email ?? null} />;
+    }
+    throw error;
+  }
 
   return (
     <DashboardShell

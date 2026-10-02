@@ -19,6 +19,22 @@ export function forbiddenResponse(message = "Forbidden"): Response {
   return Response.json({ error: message }, { status: 403 });
 }
 
+export async function requireApiUser(): Promise<User | Response> {
+  if (!isAuthConfigured()) {
+    return Response.json(
+      { error: "Authentication is not configured." },
+      { status: 503 },
+    );
+  }
+
+  const user = await getAuthenticatedUser();
+  if (!user) {
+    return unauthorizedResponse();
+  }
+
+  return user;
+}
+
 export async function requireApiAuth(): Promise<
   AuthenticatedRequestContext | Response
 > {

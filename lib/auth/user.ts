@@ -1,7 +1,15 @@
 import type { User } from "@supabase/supabase-js";
 import { getSupabaseAdmin, isDatabaseConfigured } from "@/lib/db/client";
-import { FplApiError } from "@/lib/fpl/client";
 import { createSupabaseServerClient } from "./server";
+
+export class MissingFplEntryError extends Error {
+  constructor() {
+    super(
+      "No FPL team is linked to this account. Open Settings and enter your FPL team ID.",
+    );
+    this.name = "MissingFplEntryError";
+  }
+}
 
 export type UserProfile = {
   id: string;
@@ -196,10 +204,38 @@ export async function getAuthenticatedFplEntryId(
   } as User);
 
   if (!profile.fpl_entry_id) {
-    throw new FplApiError(
-      "No FPL entry is linked to this account. Ask an administrator to set profiles.fpl_entry_id.",
-    );
+    throw new MissingFplEntryError();
   }
 
   return profile.fpl_entry_id;
+}
+
+export async function setUserFplEntryId(
+  userId: string,
+  entryId: number,
+): Promise<UserProfile> {
+  try {
+    return await updateProfileFplEntryWithSession(userId, entryId);
+  } catch (error) {
+    if (!isDatabaseConfigured()) {
+      throw error;
+    }
+
+    const supabase = getSupabaseAdmin();
+    const { data, error: adminError } = await supabase
+      .from("profiles")
+      .update({
+        fpl_entry_id: entryId,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", userId)
+      .select(PROFILE_COLUMNS)
+      .single();
+
+    if (adminError) {
+      throw new AuthError(`Failed to update profile: ${adminError.message}`);
+    }
+
+    return data as UserProfile;
+  }
 }

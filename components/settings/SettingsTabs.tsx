@@ -2,12 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Palette } from "lucide-react";
+import { Bell, Link2, Palette } from "lucide-react";
 
 export function SettingsTabs() {
   const pathname = usePathname();
 
   const tabs = [
+    {
+      href: "/settings/team",
+      label: "Team",
+      description: "Linked FPL ID",
+      icon: Link2,
+    },
     {
       href: "/settings/notifications",
       label: "Notifications",
