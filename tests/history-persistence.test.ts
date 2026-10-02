@@ -110,9 +110,12 @@ function mockDashboardPayload(): DashboardPayload {
       })),
       transferRecommendation: {
         action: "SAVE",
+        hitCost: 0,
+        freeTransfers: 1,
         reasons: ["SAVE TRANSFER"],
       },
       topTransferCandidates: [],
+      freeTransfers: 1,
       fixtureOutlook: [],
       generatedAt: "2026-09-02T00:00:00.000Z",
     },
@@ -132,6 +135,11 @@ function mockDashboardPayload(): DashboardPayload {
       shouldRecalculate: false,
       errors: [],
     },
+    squadResources: {
+      freeTransfers: 1,
+      activeChip: null,
+      chipsPlayed: [],
+    },
   };
 }
 
@@ -139,7 +147,7 @@ describe("history persistence helpers", () => {
   it("builds formation labels from stored squad data", () => {
     const payload = mockDashboardPayload();
     expect(formationFromPlayers(payload.startingXi)).toBe("5-3-1");
-    expect(ENGINE_VERSION).toBe("2.0.0");
+    expect(ENGINE_VERSION).toBe("2.1.0");
   });
 
   it("keeps recommendation identity stable for idempotent saves", () => {

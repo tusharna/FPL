@@ -15,6 +15,7 @@ import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { DashboardNav } from "@/components/DashboardNav";
 import { Badge } from "@/components/ui/Badge";
 import { StatCard } from "@/components/ui/StatCard";
+import { formatChipLabel } from "@/lib/fpl/chips";
 import { formatDeadline, formatPrice, formatRank } from "@/lib/format";
 import type { DashboardPayload } from "@/lib/fpl/dashboard-data";
 
@@ -31,7 +32,7 @@ export function DashboardShell({
   userDisplayName,
   children,
 }: DashboardShellProps) {
-  const { manager, gameweek, planning } = data;
+  const { manager, gameweek, planning, squadResources } = data;
 
   // Manager avatar initials
   const initials = manager.managerName
@@ -153,6 +154,24 @@ export function DashboardShell({
           icon={Trophy}
           accent="text-cyan-300"
         />
+      </section>
+
+      <section className="flex flex-wrap gap-2">
+        <Badge tone="mint">
+          Free transfers:{" "}
+          {squadResources.freeTransfers == null ? "Unknown" : squadResources.freeTransfers}
+        </Badge>
+        <Badge tone={squadResources.activeChip ? "gold" : "neutral"}>
+          Active chip: {squadResources.activeChip ?? "None"}
+        </Badge>
+        <Badge tone="sky">
+          Chips used:{" "}
+          {squadResources.chipsPlayed.length === 0
+            ? "None"
+            : squadResources.chipsPlayed
+                .map((chip) => `${formatChipLabel(chip.name)} GW${chip.event}`)
+                .join(", ")}
+        </Badge>
       </section>
 
       {/* Navigation Bar */}

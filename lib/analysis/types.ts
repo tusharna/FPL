@@ -57,6 +57,8 @@ export type TransferRecommendation = {
   playerOut?: PlayerAnalysis;
   playerIn?: PlayerAnalysis;
   score?: number;
+  hitCost: number;
+  freeTransfers: number | null;
   reasons: string[];
 };
 
@@ -87,6 +89,7 @@ export type GameweekAnalysis = {
   playerRisks: PlayerRisk[];
   transferRecommendation: TransferRecommendation;
   topTransferCandidates: TransferCandidate[];
+  freeTransfers: number | null;
   fixtureOutlook: FixtureOutlook[];
   generatedAt: string;
 };

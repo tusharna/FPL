@@ -21,8 +21,16 @@ import {
   normalizePlayer,
   tenthsToMillions,
 } from "./normalize";
+import { formatChipLabel, type PlayedChip } from "./chips";
+import { getEntryHistory } from "./entry-history";
 import { getPicks } from "./picks";
 import type { DashboardData, Player } from "./types";
+
+export type SquadResources = {
+  freeTransfers: number | null;
+  activeChip: string | null;
+  chipsPlayed: PlayedChip[];
+};
 
 export type PlanningBanner = {
   planningContext: PlanningGameweekContext;
@@ -35,6 +43,7 @@ export type DashboardPayload = DashboardData & {
   analysis: GameweekAnalysis;
   intelligence: IntelligenceBundle;
   planning: PlanningBanner | null;
+  squadResources: SquadResources;
 };
 
 export const getDashboardData = cache(async function getDashboardData(
@@ -46,10 +55,18 @@ export const getDashboardData = cache(async function getDashboardData(
   ]);
 
   const gameweek = detectGameweek(bootstrap.events);
-  const [entry, picksResponse] = await Promise.all([
+  const [entry, picksResponse, entryHistory] = await Promise.all([
     getEntry(entryId),
     getPicks(entryId, gameweek.relevant.id),
+    getEntryHistory(entryId).catch(() => null),
   ]);
+  const squadResources: SquadResources = {
+    freeTransfers: entryHistory?.freeTransfers ?? null,
+    activeChip: picksResponse.active_chip
+      ? formatChipLabel(picksResponse.active_chip)
+      : null,
+    chipsPlayed: entryHistory?.chipsPlayed ?? [],
+  };
 
   const teamsById = indexById(bootstrap.teams);
   const typesById = indexById(bootstrap.element_types);
@@ -80,6 +97,7 @@ export const getDashboardData = cache(async function getDashboardData(
     allPlayers,
     fixtures,
     teams: bootstrap.teams,
+    freeTransfers: squadResources.freeTransfers,
   });
 
   const squadIds = new Set(squad.map((player) => player.id));
@@ -116,6 +134,7 @@ export const getDashboardData = cache(async function getDashboardData(
           fixtures,
           teams: bootstrap.teams,
           intelligenceById,
+          freeTransfers: squadResources.freeTransfers,
         })
       : analysis;
 
@@ -144,6 +163,7 @@ export const getDashboardData = cache(async function getDashboardData(
     viceCaptain,
     analysis: finalAnalysis,
     intelligence,
+    squadResources,
   };
 });
 

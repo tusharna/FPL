@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { analyzeGameweek } from "@/lib/analysis/team";
 import type { GameweekAnalysis } from "@/lib/analysis/types";
+import { buildChipAdvice, type ChipAdvice, type ChipId } from "./chips";
 import { getAuthenticatedFplEntryId } from "@/lib/auth/user";
 import { runIntelligencePipeline } from "@/lib/intelligence";
 import type { IntelligenceBundle } from "@/lib/intelligence/types";
@@ -30,6 +31,9 @@ export type NextGameweekPlanningData = {
   viceCaptain: SquadPlayer | null;
   bank: number;
   teamValue: number;
+  freeTransfers: number | null;
+  availableChips: ChipId[];
+  chipAdvice: ChipAdvice;
   analysis: GameweekAnalysis;
   intelligence: IntelligenceBundle;
   generatedAt: string;
@@ -145,6 +149,12 @@ export const getNextGameweekPlanningData = cache(
       normalizePlayer(element, teamsById, typesById),
     );
 
+    const availableChips = [
+      ...new Set(
+        myTeam.chips.filter((chip) => chip.available).map((chip) => chip.id),
+      ),
+    ];
+
     const analysis = analyzeGameweek({
       gameweek: planningGwId,
       squad: normalized.squad,
@@ -153,6 +163,7 @@ export const getNextGameweekPlanningData = cache(
       allPlayers,
       fixtures,
       teams: bootstrap.teams,
+      freeTransfers: myTeam.freeTransfers,
     });
 
     const squadIds = new Set(normalized.squad.map((player) => player.id));
@@ -189,8 +200,19 @@ export const getNextGameweekPlanningData = cache(
             fixtures,
             teams: bootstrap.teams,
             intelligenceById,
+            freeTransfers: myTeam.freeTransfers,
           })
         : analysis;
+
+    const chipAdvice = buildChipAdvice({
+      available: availableChips,
+      squad: normalized.squad,
+      startingXi: normalized.startingXi,
+      bench: normalized.bench,
+      captainId: finalAnalysis.captain.player.playerId,
+      eventId: planningGwId,
+      fixtures,
+    });
 
     const manager: ManagerInfo = {
       teamName: entry.name,
@@ -219,6 +241,9 @@ export const getNextGameweekPlanningData = cache(
         viceCaptain: normalized.viceCaptain,
         bank: normalized.bank,
         teamValue: normalized.teamValue,
+        freeTransfers: myTeam.freeTransfers,
+        availableChips,
+        chipAdvice,
         analysis: finalAnalysis,
         intelligence,
         generatedAt: new Date().toISOString(),

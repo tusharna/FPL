@@ -1,4 +1,9 @@
-import { MAX_PLAYERS_PER_CLUB, MINIMUM_TRANSFER_GAIN } from "./config";
+import {
+  HIT_COST_POINTS,
+  HIT_TRANSFER_GAIN,
+  MAX_PLAYERS_PER_CLUB,
+  MINIMUM_TRANSFER_GAIN,
+} from "./config";
 import type { Player } from "@/lib/fpl/types";
 import type { PlayerAnalysis, TransferCandidate, TransferRecommendation } from "./types";
 
@@ -139,16 +144,31 @@ export function findTransferCandidates(input: {
 
 export function recommendTransfer(
   candidates: TransferCandidate[],
+  options?: { freeTransfers?: number | null },
 ): TransferRecommendation {
+  const freeTransfers =
+    options?.freeTransfers == null ? null : Math.max(0, options.freeTransfers);
+  const hitCost = freeTransfers === 0 ? HIT_COST_POINTS : 0;
+  const threshold = hitCost > 0 ? HIT_TRANSFER_GAIN : MINIMUM_TRANSFER_GAIN;
   const best = candidates[0];
-  if (!best || best.gain < MINIMUM_TRANSFER_GAIN) {
+  const transferContext =
+    freeTransfers == null
+      ? "Free transfer count is unknown."
+      : freeTransfers === 0
+        ? `You have 0 free transfers. A move costs a ${HIT_COST_POINTS}-point hit.`
+        : `You have ${freeTransfers} free transfer${freeTransfers === 1 ? "" : "s"}.`;
+
+  if (!best || best.gain < threshold) {
     return {
       action: "SAVE",
+      hitCost: 0,
+      freeTransfers,
       reasons: [
         "SAVE TRANSFER",
         best
-          ? `Best legal replacement only gains ${best.gain.toFixed(2)}, below the ${MINIMUM_TRANSFER_GAIN} threshold`
+          ? `Best legal replacement only gains ${best.gain.toFixed(2)}, below the ${threshold} threshold`
           : "No legal same-position replacement beats a current player",
+        transferContext,
       ],
     };
   }
@@ -158,10 +178,15 @@ export function recommendTransfer(
     playerOut: best.playerOut,
     playerIn: best.playerIn,
     score: best.gain,
+    hitCost,
+    freeTransfers,
     reasons: [
       "TRANSFER",
       ...best.reasons,
-      "This is a recommendation only — the engine never applies the move",
+      transferContext,
+      hitCost > 0
+        ? `This recommendation still clears the higher hit threshold (${threshold}).`
+        : "This is a recommendation only — the engine never applies the move",
     ],
   };
 }

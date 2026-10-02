@@ -422,8 +422,9 @@ describe("email formatting", () => {
       viceCaptain: { player: analysisPlayer({ playerId: 2, position: "MID" }), score: 0.8, reasons: [], confidence: "HIGH" as const },
       lineupChanges: [],
       playerRisks: [],
-      transferRecommendation: { action: "SAVE" as const, reasons: [] },
+      transferRecommendation: { action: "SAVE" as const, hitCost: 0, freeTransfers: 1, reasons: [] },
       topTransferCandidates: [],
+      freeTransfers: 1,
       fixtureOutlook: [],
       generatedAt: new Date().toISOString(),
     };

@@ -5,7 +5,7 @@ const TOKEN_FILE = join(process.cwd(), ".fpl-refresh-token");
 
 /** Loads the persisted refresh token (survives PingOne rotation in local dev). */
 export function loadStoredRefreshToken(): string | null {
-  if (!existsSync(TOKEN_FILE)) {
+  if (process.env.NODE_ENV === "test" || !existsSync(TOKEN_FILE)) {
     return null;
   }
 

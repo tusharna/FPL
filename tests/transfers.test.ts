@@ -92,5 +92,39 @@ describe("SAVE vs TRANSFER", () => {
     expect(gain).toBeGreaterThan(MINIMUM_TRANSFER_GAIN);
     expect(decision.action).toBe("TRANSFER");
     expect(decision.playerIn?.playerId).toBe(80);
+    expect(decision.hitCost).toBe(0);
+  });
+
+  it("saves a modest gain when the move would cost a hit", () => {
+    const decision = recommendTransfer(
+      [
+        {
+          playerOut: analysisPlayer({ playerId: 8, position: "MID", transferScore: 0.4 }),
+          playerIn: analysisPlayer({ playerId: 80, position: "MID", transferScore: 0.65 }),
+          gain: 0.25,
+          reasons: ["upgrade"],
+        },
+      ],
+      { freeTransfers: 0 },
+    );
+    expect(decision.action).toBe("SAVE");
+    expect(decision.hitCost).toBe(0);
+    expect(decision.reasons.join(" ")).toMatch(/4-point hit/);
+  });
+
+  it("still recommends a transfer on a hit when the gain is large", () => {
+    const decision = recommendTransfer(
+      [
+        {
+          playerOut: analysisPlayer({ playerId: 8, position: "MID", transferScore: 0.2 }),
+          playerIn: analysisPlayer({ playerId: 80, position: "MID", transferScore: 0.9 }),
+          gain: 0.7,
+          reasons: ["upgrade"],
+        },
+      ],
+      { freeTransfers: 0 },
+    );
+    expect(decision.action).toBe("TRANSFER");
+    expect(decision.hitCost).toBe(4);
   });
 });

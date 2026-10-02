@@ -4,6 +4,7 @@ import { IntelligencePanel } from "@/components/intelligence/IntelligencePanel";
 import { DeadlineCountdown } from "@/components/planning/DeadlineCountdown";
 import { Badge } from "@/components/ui/Badge";
 import { Panel } from "@/components/ui/Panel";
+import { CHIP_LABELS } from "@/lib/fpl/chips";
 import { formatPrice } from "@/lib/format";
 import type { NextGameweekPlanningData } from "@/lib/fpl/planning-data";
 
@@ -56,6 +57,10 @@ export function PrepareGameweekView({ data }: PrepareGameweekViewProps) {
           <div className="mt-3 flex flex-wrap gap-4 text-sm text-white/75">
             <span>Team value: {formatPrice(data.teamValue)}</span>
             <span>Bank: {formatPrice(data.bank)}</span>
+            <span>
+              Free transfers:{" "}
+              {data.freeTransfers == null ? "Unknown" : data.freeTransfers}
+            </span>
             <span>{data.squad.length} players</span>
           </div>
           <p className="mt-2 text-xs text-white/45">
@@ -91,9 +96,42 @@ export function PrepareGameweekView({ data }: PrepareGameweekViewProps) {
           </div>
         ) : (
           <p className="mt-3 text-sm text-white/70">
-            No transfer recommended — hold your free transfer for now.
+            {data.freeTransfers == null
+              ? "No transfer recommended."
+              : data.freeTransfers === 0
+                ? "No transfer recommended. You have no free transfer, so a move would cost a 4-point hit."
+                : `No transfer recommended. You can bank ${data.freeTransfers} free transfer${data.freeTransfers === 1 ? "" : "s"}.`}
           </p>
         )}
+      </Panel>
+
+      <Panel className="p-5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/45">
+            Chip decision
+          </p>
+          <Badge tone={data.chipAdvice.action === "PLAY" ? "gold" : "mint"}>
+            {data.chipAdvice.action === "PLAY"
+              ? `PLAY ${data.chipAdvice.label}`
+              : "HOLD CHIPS"}
+          </Badge>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {data.availableChips.length === 0 ? (
+            <span className="text-sm text-white/55">No chips available.</span>
+          ) : (
+            data.availableChips.map((chip) => (
+              <Badge key={chip} tone="sky">
+                {CHIP_LABELS[chip]}
+              </Badge>
+            ))
+          )}
+        </div>
+        <ul className="mt-3 space-y-1 text-sm text-white/70">
+          {data.chipAdvice.reasons.map((reason) => (
+            <li key={reason}>{reason}</li>
+          ))}
+        </ul>
       </Panel>
 
       <Analysis analysis={analysis} />

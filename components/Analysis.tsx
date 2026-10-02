@@ -153,6 +153,12 @@ export function Analysis({ analysis }: AnalysisProps) {
           <p className="mt-2 text-sm text-white/70">
             {transfer.playerOut.webName} → {transfer.playerIn.webName} · gain{" "}
             {transfer.score?.toFixed(2)}
+            {transfer.hitCost > 0 ? ` · ${transfer.hitCost}-point hit` : ""}
+          </p>
+        ) : null}
+        {transfer.freeTransfers != null ? (
+          <p className="mt-1 text-xs text-white/45">
+            Free transfers available: {transfer.freeTransfers}
           </p>
         ) : null}
         <ul className="mt-3 space-y-1 text-xs text-white/60">

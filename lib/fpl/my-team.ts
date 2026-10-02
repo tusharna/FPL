@@ -9,6 +9,7 @@ import {
   normalizePlayer,
   tenthsToMillions,
 } from "./normalize";
+import { normalizeChipId, type ChipId } from "./chips";
 import type { FplBootstrapStatic, FplFixture, FplPick, Player, SquadPlayer } from "./types";
 
 const MY_TEAM_REVALIDATE_SECONDS = 60;
@@ -41,12 +42,20 @@ const myTeamResponseSchema = z.object({
     .optional(),
 });
 
+export type MyTeamChip = {
+  id: ChipId;
+  name: string;
+  status: string;
+  available: boolean;
+};
+
 export type MyTeamData = {
   picks: FplPick[];
   bank: number;
   teamValue: number;
   freeTransfers: number | null;
   transfersMade: number;
+  chips: MyTeamChip[];
 };
 
 export type NormalizedMyTeamSquad = {
@@ -98,7 +107,7 @@ export async function getMyTeam(entryId: number): Promise<MyTeamData> {
       );
     }
 
-    const { picks, transfers } = parsed.data;
+    const { picks, transfers, chips } = parsed.data;
 
     return {
       picks: picks.map((pick) => toFplPick(pick)),
@@ -106,6 +115,21 @@ export async function getMyTeam(entryId: number): Promise<MyTeamData> {
       teamValue: tenthsToMillions(transfers.value),
       freeTransfers: transfers.limit,
       transfersMade: transfers.made,
+      chips: (chips ?? []).flatMap((chip) => {
+        const id = normalizeChipId(chip.name);
+        if (!id) {
+          return [];
+        }
+        const status = chip.status_for_entry.toLowerCase();
+        return [
+          {
+            id,
+            name: chip.name,
+            status,
+            available: status === "available" || status === "active",
+          },
+        ];
+      }),
     };
   } catch (error) {
     if (

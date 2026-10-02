@@ -38,9 +38,12 @@ function mockAnalysis(): GameweekAnalysis {
     })),
     transferRecommendation: {
       action: "SAVE",
+      hitCost: 0,
+      freeTransfers: 1,
       reasons: ["SAVE TRANSFER", "No legal replacement clears the gain threshold"],
     },
     topTransferCandidates: [],
+    freeTransfers: 1,
     fixtureOutlook: squad.map((player) => ({
       playerId: player.playerId,
       name: player.webName,

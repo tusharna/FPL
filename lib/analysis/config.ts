@@ -1,9 +1,13 @@
-export const ENGINE_VERSION = "2.0.0";
+export const ENGINE_VERSION = "2.1.0";
 
 export const SHORT_TERM_HORIZON = 1;
 export const MEDIUM_TERM_HORIZON = 5;
 export const FIXTURE_HORIZON = 3;
 export const MINIMUM_TRANSFER_GAIN = 0.12;
+/** Larger score gap required before recommending a move that costs a 4-point hit. */
+export const HIT_TRANSFER_GAIN = 0.45;
+export const HIT_COST_POINTS = 4;
+export const MAX_BANKED_FREE_TRANSFERS = 5;
 export const MAX_PLAYERS_PER_CLUB = 3;
 
 export const PLAYER_SCORE_WEIGHTS = {

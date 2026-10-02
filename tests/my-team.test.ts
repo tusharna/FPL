@@ -90,6 +90,7 @@ describe("normalizeMyTeamSquad", () => {
         teamValue: 100,
         freeTransfers: 1,
         transfersMade: 0,
+        chips: [],
       },
       bootstrap,
       fixtures: [] as FplFixture[],

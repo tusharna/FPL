@@ -20,6 +20,7 @@ export function analyzeGameweek(input: {
   teams: FplTeam[];
   generatedAt?: string;
   intelligenceById?: Map<number, PlayerIntelligence>;
+  freeTransfers?: number | null;
 }): GameweekAnalysis {
   const teamsById = indexById(input.teams);
   const context = {
@@ -65,8 +66,11 @@ export function analyzeGameweek(input: {
       risk: riskLevelFromScores(player.availabilityRisk, player.minutesRisk),
       reasons: riskReasons(player),
     })),
-    transferRecommendation: recommendTransfer(topTransferCandidates),
+    transferRecommendation: recommendTransfer(topTransferCandidates, {
+      freeTransfers: input.freeTransfers,
+    }),
     topTransferCandidates,
+    freeTransfers: input.freeTransfers ?? null,
     fixtureOutlook: squadAnalysis.map((player) => ({
       playerId: player.playerId,
       name: player.webName,

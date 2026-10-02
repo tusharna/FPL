@@ -128,6 +128,9 @@ describe("getNextGameweekPlanningData", () => {
           teamValue: 100,
           freeTransfers: 1,
           transfersMade: 0,
+          chips: [
+            { id: "wildcard", name: "wildcard", status: "available", available: true },
+          ],
         }),
       };
     });
